@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mathe-Sandbox · Klasse 5</title>
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mathe-Lab">
+<meta name="theme-color" content="#0f4c75">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f4c75'/><text x='50' y='70' font-size='52' text-anchor='middle' fill='%233282b8' font-family='Arial' font-weight='bold'>📐</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230f4c75'/><text x='90' y='128' font-size='100' text-anchor='middle' font-family='Arial'>📐</text></svg>">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, #1b262c 0%, #0f4c75 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: #e7edf3;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+    overflow-x: hidden;
+  }
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #18222c;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+  }
+  header {
+    background: linear-gradient(135deg, #0f4c75, #3282b8);
+    padding: 16px 18px;
+    color: #fff;
+    position: sticky;
+    top: env(safe-area-inset-top);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header h1 { font-size: 18px; font-weight: 700; flex: 1; }
+  header .back {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  header .back:active { background: rgba(255,255,255,0.3); }
+
+  main { padding: 18px; padding-bottom: 28px; }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  h3 {
+    font-size: 16px;
+    margin: 12px 0 8px;
+    color: #bbe1fa;
+  }
+  p { font-size: 14px; line-height: 1.55; color: #c5d3df; }
+
+  /* Home – module grid */
+  .home-intro {
+    background: rgba(50,130,184,0.15);
+    border-left: 4px solid #3282b8;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #c5d3df;
+  }
+  .modules { display: grid; gap: 12px; }
+  .module-card {
+    background: linear-gradient(145deg, #1f2d3a, #182530);
+    border: 1px solid #2c3e50;
+    border-radius: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.1s, border-color 0.2s;
+    color: inherit;
+    text-decoration: none;
+  }
+  .module-card:active { transform: scale(0.98); }
+  .module-card .icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3282b8, #0f4c75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .module-card .body { flex: 1; }
+  .module-card .name { font-size: 16px; font-weight: 700; color: #fff; }
+  .module-card .desc { font-size: 13px; color: #8aa0b3; margin-top: 3px; line-height: 1.4; }
+  .module-card .progress {
+    text-align: center;
+    background: rgba(50,130,184,0.2);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #bbe1fa;
+    min-width: 50px;
+  }
+  .module-card .progress .num { font-size: 16px; font-weight: 700; color: #fff; display: block; }
+
+  /* Level tabs */
+  .level-tabs {
+    display: flex;
+    gap: 6px;
+    background: #1f2d3a;
+    padding: 6px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .level-tab {
+    flex: 1;
+    background: transparent;
+    color: #8aa0b3;
+    border: 0;
+    padding: 10px 8px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+    min-width: max-content;
+  }
+  .level-tab.active {
+    background: linear-gradient(135deg, #3282b8, #0f4c75);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(50,130,184,0.4);
+  }
+  .level-tab .check { color: #66bb6a; margin-left: 4px; }
+
+  /* Task list */
+  .task-card {
+    background: #1f2d3a;
+    border: 1px solid #2c3e50;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .task-card.done { border-color: #66bb6a; background: rgba(102, 187, 106, 0.08); }
+  .task-card .task-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .task-card .task-num {
+    background: #3282b8;
+    color: #fff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .task-card.done .task-num { background: #66bb6a; }
+  .task-card .task-num .check { font-size: 14px; }
+  .task-card .task-text {
+    flex: 1;
+    margin-left: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #e7edf3;
+  }
+  .task-card .task-status {
+    font-size: 11px;
+    color: #8aa0b3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .task-card.done .task-status { color: #66bb6a; }
+
+  /* Interaction area */
+  .interact {
+    background: #18222c;
+    border: 1px solid #2c3e50;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .interact svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #fff;
+    border-radius: 6px;
+    touch-action: none;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+  }
+  .display-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .display-item {
+    background: rgba(50,130,184,0.15);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #bbe1fa;
+  }
+  .display-item .big {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+
+  /* Sliders */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+  }
+  .slider-row label {
+    min-width: 80px;
+    font-size: 13px;
+    color: #bbe1fa;
+    font-weight: 600;
+  }
+  .slider-row .val {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(50,130,184,0.2);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  input[type="range"] {
+    flex: 1;
+    height: 36px;
+    -webkit-appearance: none;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: #2c3e50;
+    height: 6px;
+    border-radius: 3px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3282b8, #0f4c75);
+    margin-top: -10px;
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-track {
+    background: #2c3e50;
+    height: 6px;
+    border-radius: 3px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3282b8, #0f4c75);
+    border: 2px solid #fff;
+    cursor: pointer;
+  }
+
+  /* Buttons */
+  button.btn {
+    background: linear-gradient(135deg, #3282b8, #0f4c75);
+    color: #fff;
+    border: 0;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  button.btn:active { transform: scale(0.97); }
+  button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.btn.sm { padding: 8px 14px; font-size: 13px; min-height: 36px; }
+  button.btn.gh { background: #2c3e50; }
+  button.btn.gh:active { background: #34495e; }
+  button.btn.success { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
+
+  input[type="text"], input[type="number"] {
+    background: #fff;
+    color: #18222c;
+    border: 2px solid #3282b8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: inherit;
+    min-height: 44px;
+    width: 100%;
+    max-width: 200px;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: #66bb6a;
+  }
+
+  /* Multiple choice */
+  .choices {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .choice {
+    background: #2c3e50;
+    color: #e7edf3;
+    border: 2px solid #34495e;
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .choice:active { transform: scale(0.98); }
+  .choice.correct { background: rgba(102,187,106,0.2); border-color: #66bb6a; color: #b8f0a8; }
+  .choice.wrong { background: rgba(220,80,60,0.2); border-color: #c8503c; color: #ff9a8a; }
+  .choice:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-left: 4px solid;
+  }
+  .feedback.ok { background: rgba(102,187,106,0.15); border-color: #66bb6a; color: #b8f0a8; }
+  .feedback.bad { background: rgba(220,80,60,0.15); border-color: #c8503c; color: #ff9a8a; }
+  .feedback.tip { background: rgba(255,193,7,0.12); border-color: #ffc107; color: #ffd97a; font-style: italic; }
+
+  /* Explain box */
+  .explain-box {
+    background: rgba(50,130,184,0.1);
+    border-left: 4px solid #3282b8;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #c5d3df;
+  }
+  .explain-box strong { color: #bbe1fa; }
+
+  /* Footer info */
+  .home-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #5a6f80;
+    padding: 18px 12px 6px;
+    line-height: 1.5;
+  }
+  .home-footer button {
+    background: transparent;
+    border: 0;
+    color: #5a6f80;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 12px;
+  }
+
+  /* Star display */
+  .stars { color: #ffc107; letter-spacing: 1px; }
+  .stars.dim { color: #2c3e50; }
+
+  /* Quick chip buttons */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip {
+    background: #2c3e50;
+    color: #bbe1fa;
+    border: 0;
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 32px;
+  }
+  .chip:active { background: #34495e; }
+
+  /* Quad-type pills */
+  .quad-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; margin-top: 10px; }
+  .quad-pill {
+    background: #2c3e50;
+    color: #c5d3df;
+    border: 2px solid transparent;
+    padding: 10px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-height: 44px;
+  }
+  .quad-pill.active { border-color: #3282b8; background: rgba(50,130,184,0.2); color: #fff; }
+  .quad-pill:active { transform: scale(0.97); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="topHeader">
+    <button class="back hidden" id="backBtn">← zurück</button>
+    <h1 id="appTitle">📐 Mathe-Sandbox</h1>
+  </header>
+  <main id="screen"></main>
+</div>
+
+<script>
+// ============================================================
+// MODULE & AUFGABEN
+// ============================================================
+const MODULES = {
+  zahlenstrahl: {
+    name: "Zahlenstrahl",
+    icon: "📏",
+    desc: "Ganze Zahlen, Betrag und Vorzeichen visuell erleben",
+    type: "numberline",
+    levels: {
+      easy: [
+        { task: "Schiebe den Punkt auf die Zahl <strong>−3</strong>.", check: v => v === -3, hint: "Negative Zahlen liegen links von der Null." },
+        { task: "Welche Zahl ist die Gegenzahl von <strong>+5</strong>? Schiebe den Punkt darauf.", check: v => v === -5, hint: "Gegenzahl: gleicher Betrag, anderes Vorzeichen." },
+        { task: "Schiebe den Punkt auf eine Zahl, deren <strong>Betrag 4</strong> ist.", check: v => Math.abs(v) === 4 && v !== 0, hint: "Es gibt zwei Möglichkeiten: +4 oder −4." }
+      ],
+      medium: [
+        { task: "Berechne <strong>(+3) + (−5)</strong> und schiebe den Punkt auf das Ergebnis.", check: v => v === -2, hint: "3 − 5 = −2. Starte bei +3, gehe 5 nach links." },
+        { task: "Berechne <strong>(−4) + 7</strong>.", check: v => v === 3, hint: "Starte bei −4, gehe 7 nach rechts. Du landest bei +3." },
+        { task: "Welche Zahl ist die <strong>Mitte zwischen −5 und +3</strong>?", check: v => v === -1, hint: "Differenz ist 8, halbiert 4. Von −5 vier nach rechts: −1." }
+      ],
+      hard: [
+        { task: "Berechne <strong>5 − 9 + 3</strong>.", check: v => v === -1, hint: "5 − 9 = −4. Dann −4 + 3 = −1." },
+        { task: "Berechne <strong>−6 + |−4|</strong>. Der Betrag ist 4.", check: v => v === -2, hint: "|−4| = 4. Also −6 + 4 = −2." },
+        { task: "Welche Zahl hat denselben Betrag wie −7, ist aber positiv?", check: v => v === 7, hint: "Betrag von −7 ist 7. Positiv → +7." }
+      ]
+    }
+  },
+  koordinaten: {
+    name: "Koordinatensystem",
+    icon: "⊕",
+    desc: "Punkte setzen, Figuren konstruieren",
+    type: "coordinate",
+    levels: {
+      easy: [
+        { task: "Setze den Punkt auf <strong>P(3 | 2)</strong>.", check: p => p && p.x === 3 && p.y === 2, hint: "Erst x (waagerecht), dann y (senkrecht)." },
+        { task: "Setze den Punkt auf <strong>P(−2 | 4)</strong>.", check: p => p && p.x === -2 && p.y === 4, hint: "Negatives x = links vom Ursprung." },
+        { task: "Setze einen Punkt, der <strong>auf der x-Achse</strong> liegt (kein Ursprung).", check: p => p && p.y === 0 && p.x !== 0, hint: "Auf der x-Achse gilt y = 0." }
+      ],
+      medium: [
+        { task: "Setze einen Punkt, der auf der <strong>y-Achse</strong> liegt und positives y hat.", check: p => p && p.x === 0 && p.y > 0, hint: "Auf der y-Achse gilt x = 0." },
+        { task: "Setze einen Punkt, der vom Ursprung genau <strong>3 Felder waagerecht rechts</strong> und <strong>0 hoch</strong> liegt.", check: p => p && p.x === 3 && p.y === 0, hint: "P(3 | 0)." },
+        { task: "Wenn P(2|3) am Ursprung gespiegelt wird: wo liegt das Spiegelbild?", check: p => p && p.x === -2 && p.y === -3, hint: "Punktspiegelung am Ursprung: beide Vorzeichen umdrehen." }
+      ],
+      hard: [
+        { task: "Ein Rechteck hat die Ecken A(0|0), B(4|0), C(4|3). Wo liegt die vierte Ecke D?", check: p => p && p.x === 0 && p.y === 3, hint: "Gegenüberliegende Seiten sind parallel und gleich lang." },
+        { task: "Ein Quadrat hat A(1|1) und B(4|1). Welcher Punkt könnte die Ecke C sein (oben rechts)?", check: p => p && p.x === 4 && p.y === 4, hint: "Seitenlänge 3, also 3 nach oben." },
+        { task: "P(−3|2) wird an der x-Achse gespiegelt. Wohin?", check: p => p && p.x === -3 && p.y === -2, hint: "Spiegelung an der x-Achse: y-Vorzeichen drehen." }
+      ]
+    }
+  },
+  vierecke: {
+    name: "Vierecke",
+    icon: "▱",
+    desc: "Quadrat, Rechteck, Raute, Parallelogramm und Trapez erkennen",
+    type: "quadrilateral",
+    levels: {
+      easy: [
+        { task: "Welche Figur hat <strong>4 gleich lange Seiten UND 4 rechte Winkel</strong>?", show: "quadrat", correct: "Quadrat", hint: "Beide Eigenschaften gleichzeitig." },
+        { task: "Welche Figur hat <strong>gegenüberliegende Seiten gleich lang und 4 rechte Winkel</strong>, ist aber kein Quadrat?", show: "rechteck", correct: "Rechteck", hint: "Längere und kürzere Seiten." },
+        { task: "Welche Figur hat <strong>4 gleich lange Seiten, aber keine rechten Winkel</strong>?", show: "raute", correct: "Raute", hint: "Wie ein „schräges Quadrat\"." }
+      ],
+      medium: [
+        { task: "Welche Figur hat <strong>nur 2 parallele Seiten</strong> und die anderen beiden Seiten sind nicht parallel?", show: "trapez", correct: "Trapez", hint: "Mindestens ein Paar paralleler Seiten." },
+        { task: "Bei welcher Figur sind <strong>gegenüberliegende Seiten parallel und gleich lang</strong>, aber Winkel sind nicht 90°?", show: "parallelogramm", correct: "Parallelogramm", hint: "Wie ein „schräges Rechteck\"." },
+        { task: "Welche Figur ist <strong>achsensymmetrisch</strong>: Parallelogramm oder Quadrat?", choices: ["Parallelogramm", "Quadrat"], correct: 1, hint: "Das Quadrat hat sogar 4 Symmetrieachsen." }
+      ],
+      hard: [
+        { task: "Welche Aussage ist <strong>richtig</strong>?", choices: [
+          "Jedes Rechteck ist ein Quadrat.",
+          "Jedes Quadrat ist ein Rechteck.",
+          "Jede Raute hat rechte Winkel.",
+          "Jedes Trapez ist ein Parallelogramm."
+        ], correct: 1, hint: "Das Quadrat erfüllt alle Bedingungen eines Rechtecks – und mehr." },
+        { task: "Welches Viereck ist <strong>punktsymmetrisch</strong> (Drehung 180° liefert das gleiche Bild), aber NICHT achsensymmetrisch?", choices: [
+          "Quadrat", "Rechteck", "Parallelogramm (kein Rechteck)", "Trapez"
+        ], correct: 2, hint: "Ein „schiefes\" Parallelogramm hat keine Symmetrieachsen, aber Punktsymmetrie." },
+        { task: "Wie viele <strong>Symmetrieachsen</strong> hat ein Quadrat?", choices: ["2", "3", "4", "8"], correct: 2, hint: "2 durch die Seitenmitten + 2 durch die Diagonalen." }
+      ]
+    }
+  },
+  rechteck: {
+    name: "Rechteck",
+    icon: "▭",
+    desc: "Flächeninhalt und Umfang erforschen",
+    type: "rectangle",
+    levels: {
+      easy: [
+        { task: "Stelle ein Rechteck mit der <strong>Fläche A = 12</strong> ein (z. B. 4 × 3).", check: r => r.a * r.b === 12 && r.a > 0 && r.b > 0, hint: "A = a · b. Mögliche Maße: 1×12, 2×6, 3×4, 4×3, 6×2, 12×1." },
+        { task: "Stelle ein <strong>Quadrat mit Seitenlänge 5</strong> ein.", check: r => r.a === 5 && r.b === 5, hint: "Quadrat: a = b. Beide Slider auf 5." },
+        { task: "Stelle ein Rechteck mit <strong>Umfang U = 20</strong> ein (z. B. 6 × 4).", check: r => 2*(r.a + r.b) === 20 && r.a > 0 && r.b > 0, hint: "U = 2·(a+b). Also a+b = 10. Z. B. 6 und 4, oder 7 und 3." }
+      ],
+      medium: [
+        { task: "Stelle ein Rechteck mit <strong>Fläche 24</strong> UND <strong>Umfang 22</strong> ein.", check: r => r.a * r.b === 24 && 2*(r.a + r.b) === 22, hint: "Probiere 8 × 3. Fläche = 24, Umfang = 22." },
+        { task: "Verdopple die Seite <strong>a</strong> in einem 3×4-Rechteck. Wie groß ist nun die Fläche?", check: r => r.a === 6 && r.b === 4, hint: "Stelle a = 6 und b = 4 ein. Die Fläche wird sich verdoppeln (von 12 auf 24)." },
+        { task: "Stelle ein Rechteck mit Fläche 16 ein, das KEIN Quadrat ist (z. B. 2 × 8).", check: r => r.a * r.b === 16 && r.a !== r.b, hint: "Mögliche Maße: 2×8, 8×2, 16×1. Aber NICHT 4×4 (das wäre ein Quadrat)." }
+      ],
+      hard: [
+        { task: "Welches Rechteck hat <strong>Umfang 30</strong> und die <strong>größte Fläche</strong>?", check: r => r.a === 8 && r.b === 7 || r.a === 7 && r.b === 8, hint: "Bei festem Umfang ist die Fläche am größten, wenn a und b möglichst gleich sind: 7,5 × 7,5. Mit ganzen Zahlen: 7 × 8." },
+        { task: "Stelle ein Rechteck mit a = 6 und b = 4 ein. Die Fläche in dm² ist 24. <strong>Wie viele cm²</strong> sind das? (Antwort eintippen)", input: true, check: v => parseInt(v) === 2400, hint: "1 dm² = 100 cm². Also 24 · 100 = 2.400 cm²." },
+        { task: "Stelle ein Rechteck mit a = 10 und b = 5 ein. Welche Fläche hat ein Rechteck, das doppelt so lang ist (a verdoppelt)?", input: true, check: v => parseInt(v) === 100, hint: "Neue Maße: 20 × 5 = 100." }
+      ]
+    }
+  },
+  quader: {
+    name: "Quader (3D)",
+    icon: "📦",
+    desc: "Volumen und Oberfläche eines Quaders erkunden",
+    type: "cuboid",
+    levels: {
+      easy: [
+        { task: "Stelle einen Quader mit <strong>Volumen V = 24</strong> ein (z. B. 4 × 3 × 2).", check: q => q.a * q.b * q.c === 24, hint: "V = a · b · c. Probiere 4 × 3 × 2 oder 6 × 4 × 1." },
+        { task: "Stelle einen <strong>Würfel mit Kantenlänge 3</strong> ein. Sein Volumen?", input: true, check: (v, q) => q.a === 3 && q.b === 3 && q.c === 3 && parseInt(v) === 27, hint: "Würfel: a = b = c. V = 3·3·3 = 27." },
+        { task: "Welches Volumen hat ein Quader mit a = 5, b = 2, c = 3?", input: true, check: v => parseInt(v) === 30, hint: "5 · 2 · 3 = 30." }
+      ],
+      medium: [
+        { task: "Stelle einen Quader mit Volumen 60 ein, der KEIN Würfel ist (z. B. 5 × 4 × 3).", check: q => q.a * q.b * q.c === 60 && !(q.a === q.b && q.b === q.c), hint: "Mögliche Maße: 5×4×3, 6×5×2, 10×3×2, …" },
+        { task: "Verdopple die Höhe c eines Quaders (a=2, b=3, c=2). Stelle die neuen Maße ein. Wie groß ist das neue Volumen?", input: true, check: (v, q) => q.a === 2 && q.b === 3 && q.c === 4 && parseInt(v) === 24, hint: "Stelle c = 4 ein. V = 2·3·4 = 24." },
+        { task: "Welche Kantenlänge hat ein <strong>Würfel mit V = 64</strong>?", input: true, check: v => parseInt(v) === 4, hint: "4 · 4 · 4 = 64." }
+      ],
+      hard: [
+        { task: "Berechne die <strong>Oberfläche</strong> O eines Quaders mit a=4, b=3, c=2.", input: true, check: v => parseInt(v) === 52, hint: "O = 2·(a·b + a·c + b·c) = 2·(12 + 8 + 6) = 52." },
+        { task: "Ein Quader mit a = 5, b = 5, c = 1 hat welches Volumen in cm³? Und wie viele Milliliter passen rein?", input: true, check: v => parseInt(v) === 25, hint: "V = 25 cm³. Und 1 cm³ = 1 ml → 25 ml." },
+        { task: "Ein Würfel mit Kantenlänge 10 dm hat welches Volumen in Litern? (1 dm³ = 1 l)", input: true, check: v => parseInt(v) === 1000, hint: "V = 10·10·10 = 1.000 dm³ = 1.000 Liter." }
+      ]
+    }
+  },
+  einheiten: {
+    name: "Einheiten",
+    icon: "🔄",
+    desc: "Längen, Gewichte und Zeiten umrechnen",
+    type: "units",
+    levels: {
+      easy: [
+        { task: "Wie viele <strong>cm</strong> sind <strong>3 m</strong>?", input: true, check: v => parseInt(v) === 300, hint: "1 m = 100 cm. Also 3 · 100 = 300." },
+        { task: "Wie viele <strong>m</strong> sind <strong>1 km</strong>?", input: true, check: v => parseInt(v) === 1000, hint: "1 km = 1.000 m." },
+        { task: "Wie viele <strong>g</strong> sind <strong>2 kg</strong>?", input: true, check: v => parseInt(v) === 2000, hint: "1 kg = 1.000 g. Also 2 · 1.000 = 2.000." }
+      ],
+      medium: [
+        { task: "Wie viele <strong>cm</strong> sind <strong>2 m + 30 cm</strong>?", input: true, check: v => parseInt(v) === 230, hint: "Erst beide in cm: 200 cm + 30 cm = 230 cm." },
+        { task: "Wie viele <strong>Minuten</strong> sind <strong>2 h 15 min</strong>?", input: true, check: v => parseInt(v) === 135, hint: "2 h = 120 min. Plus 15 = 135." },
+        { task: "Wie viele <strong>kg</strong> sind <strong>3.500 g</strong>? (Antwort als Dezimalzahl mit Komma)", input: true, check: v => parseFloat(String(v).replace(",", ".")) === 3.5, hint: "3.500 : 1.000 = 3,5 kg." }
+      ],
+      hard: [
+        { task: "Wie viele <strong>cm²</strong> sind <strong>2 m²</strong>?", input: true, check: v => parseInt(v) === 20000, hint: "1 m² = 10.000 cm². Also 2 · 10.000 = 20.000." },
+        { task: "Wie viele <strong>Liter</strong> passen in einen Würfel mit Kantenlänge 5 dm?", input: true, check: v => parseInt(v) === 125, hint: "V = 5·5·5 = 125 dm³ = 125 l." },
+        { task: "Wie viele <strong>Sekunden</strong> hat <strong>1 Stunde 30 Minuten</strong>?", input: true, check: v => parseInt(v) === 5400, hint: "90 min · 60 s = 5.400 s." }
+      ]
+    }
+  }
+};
+
+const LEVEL_INFO = {
+  easy: { name: "★ Leicht", color: "#66bb6a" },
+  medium: { name: "★★ Mittel", color: "#ffc107" },
+  hard: { name: "★★★ Schwer", color: "#e57373" }
+};
+
+// ============================================================
+// STATE & PERSISTENCE
+// ============================================================
+const STORAGE_KEY = 'mathe_sandbox_v1';
+let state = loadState();
+let nav = { view: 'home', module: null, level: null, taskIdx: 0 };
+
+function defaultState() {
+  const s = { completed: {}, lastView: null };
+  for (const k in MODULES) {
+    s.completed[k] = { easy: [], medium: [], hard: [] };
+  }
+  return s;
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const def = defaultState();
+    // Merge completed structure to avoid missing fields
+    for (const k in def.completed) {
+      if (!parsed.completed) parsed.completed = {};
+      if (!parsed.completed[k]) parsed.completed[k] = { easy: [], medium: [], hard: [] };
+      for (const lvl of ['easy','medium','hard']) {
+        if (!Array.isArray(parsed.completed[k][lvl])) parsed.completed[k][lvl] = [];
+      }
+    }
+    return Object.assign(def, parsed);
+  } catch (e) { return defaultState(); }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function resetAll() {
+  if (!confirm('Wirklich allen Fortschritt löschen?')) return;
+  state = defaultState();
+  saveState();
+  renderHome();
+}
+
+function markDone(moduleKey, levelKey, taskIdx) {
+  const arr = state.completed[moduleKey][levelKey];
+  if (!arr.includes(taskIdx)) arr.push(taskIdx);
+  saveState();
+}
+function isDone(moduleKey, levelKey, taskIdx) {
+  return state.completed[moduleKey][levelKey].includes(taskIdx);
+}
+function moduleProgress(moduleKey) {
+  let done = 0, total = 0;
+  for (const lvl of ['easy','medium','hard']) {
+    total += MODULES[moduleKey].levels[lvl].length;
+    done += state.completed[moduleKey][lvl].length;
+  }
+  return { done, total, pct: total ? Math.round(done/total*100) : 0 };
+}
+function totalProgress() {
+  let done = 0, total = 0;
+  for (const k in MODULES) {
+    const p = moduleProgress(k);
+    done += p.done; total += p.total;
+  }
+  return { done, total };
+}
+
+// ============================================================
+// RENDER: HOME
+// ============================================================
+const screen = document.getElementById('screen');
+const appTitle = document.getElementById('appTitle');
+const backBtn = document.getElementById('backBtn');
+
+function renderHome() {
+  nav = { view: 'home', module: null, level: null, taskIdx: 0 };
+  appTitle.innerHTML = '📐 Mathe-Sandbox';
+  backBtn.classList.add('hidden');
+  const tp = totalProgress();
+  const cards = Object.entries(MODULES).map(([key, mod]) => {
+    const p = moduleProgress(key);
+    return `<button class="module-card" data-key="${key}">
+      <div class="icon">${mod.icon}</div>
+      <div class="body">
+        <div class="name">${mod.name}</div>
+        <div class="desc">${mod.desc}</div>
+      </div>
+      <div class="progress">
+        <span class="num">${p.done}</span>
+        / ${p.total}
+      </div>
+    </button>`;
+  }).join('');
+  screen.innerHTML = `
+    <div class="home-intro">
+      <strong>📐 Geometrie zum Anfassen</strong><br>
+      Sechs Werkstätten – jede mit Entdeckungsmodus und drei Schwierigkeitsstufen.
+      Schiebe, tippe, probiere – und behalte deinen Fortschritt im Blick.
+    </div>
+    <h2>Deine Werkstätten</h2>
+    <div class="modules">${cards}</div>
+    <div class="home-footer">
+      Fortschritt insgesamt: <strong>${tp.done} / ${tp.total}</strong> Aufgaben gelöst.<br>
+      <button onclick="resetAll()">Fortschritt zurücksetzen</button>
+    </div>
+  `;
+  document.querySelectorAll('.module-card').forEach(c => {
+    c.onclick = () => openModule(c.dataset.key);
+  });
+}
+
+function openModule(key) {
+  nav = { view: 'module', module: key, level: 'explore', taskIdx: 0 };
+  renderModule();
+}
+
+// ============================================================
+// RENDER: MODULE (Tabs: Entdecken, leicht, mittel, schwer)
+// ============================================================
+function renderModule() {
+  const mod = MODULES[nav.module];
+  appTitle.innerHTML = `${mod.icon} ${mod.name}`;
+  backBtn.classList.remove('hidden');
+  backBtn.onclick = renderHome;
+
+  const tabs = [
+    { key: 'explore', label: '🔍 Entdecken' },
+    { key: 'easy', label: '★ leicht' },
+    { key: 'medium', label: '★★ mittel' },
+    { key: 'hard', label: '★★★ schwer' }
+  ];
+  const tabsHTML = tabs.map(t => {
+    const done = t.key !== 'explore' && state.completed[nav.module][t.key].length === mod.levels[t.key].length;
+    return `<button class="level-tab ${nav.level === t.key ? 'active' : ''}" data-level="${t.key}">${t.label}${done ? '<span class="check">✓</span>' : ''}</button>`;
+  }).join('');
+
+  let content = '';
+  if (nav.level === 'explore') {
+    content = renderExplore(mod);
+  } else {
+    content = renderLevel(mod, nav.level);
+  }
+
+  screen.innerHTML = `<div class="level-tabs">${tabsHTML}</div>${content}`;
+  document.querySelectorAll('.level-tab').forEach(t => {
+    t.onclick = () => { nav.level = t.dataset.level; nav.taskIdx = 0; renderModule(); };
+  });
+
+  // Initialize interactive widgets
+  if (nav.level === 'explore') {
+    initWidget(mod, null);
+  } else {
+    initLevelTasks(mod, nav.level);
+  }
+}
+
+// ============================================================
+// EXPLORE MODE
+// ============================================================
+function renderExplore(mod) {
+  const explainTexts = {
+    numberline: `<strong>So funktioniert's:</strong> Bewege den blauen Punkt mit dem Slider. Du siehst sofort die Zahl, ihren Betrag und ihre Gegenzahl. Probiere positive und negative Zahlen aus.`,
+    coordinate: `<strong>So funktioniert's:</strong> Tippe ins Gitter, um einen Punkt zu setzen. Die Koordinaten erscheinen unten. Erst x (waagerecht), dann y (senkrecht).`,
+    quadrilateral: `<strong>So funktioniert's:</strong> Wähle einen Viereckstyp und schau dir seine Eigenschaften an. So lernst du die Unterschiede zwischen Quadrat, Rechteck, Raute, Parallelogramm und Trapez.`,
+    rectangle: `<strong>So funktioniert's:</strong> Bewege die Slider für a und b. Flächeninhalt und Umfang werden sofort mitberechnet. Versuche, ein Quadrat einzustellen!`,
+    cuboid: `<strong>So funktioniert's:</strong> Drei Slider für die drei Kantenlängen. Du siehst den Quader in 3D – und sein Volumen und seine Oberfläche live.`,
+    units: `<strong>So funktioniert's:</strong> Tippe eine Zahl in eine Einheit – alle anderen Einheiten werden automatisch umgerechnet. So bekommst du ein Gefühl für die Größenverhältnisse.`
+  };
+  return `
+    <div class="explain-box">${explainTexts[mod.type]}</div>
+    <div id="exploreArea"></div>
+  `;
+}
+
+// ============================================================
+// LEVEL TASKS
+// ============================================================
+function renderLevel(mod, level) {
+  const tasks = mod.levels[level];
+  const doneCount = state.completed[nav.module][level].length;
+  const allDone = doneCount === tasks.length;
+  return `
+    <h3 style="display:flex;justify-content:space-between;align-items:center;">
+      <span>${LEVEL_INFO[level].name}</span>
+      <span style="font-size:13px;color:#bbe1fa;font-weight:normal;">${doneCount} / ${tasks.length}</span>
+    </h3>
+    ${allDone ? `<div class="feedback ok">✓ Alle Aufgaben dieser Stufe gelöst – super!</div>` : ''}
+    <div id="taskArea"></div>
+  `;
+}
+
+function initLevelTasks(mod, level) {
+  const tasks = mod.levels[level];
+  // Find next not-done task, else show all as overview
+  let idx = tasks.findIndex((_, i) => !isDone(nav.module, level, i));
+  if (idx === -1) idx = 0;
+  nav.taskIdx = idx;
+  renderTask(mod, level, idx);
+}
+
+function renderTask(mod, level, idx) {
+  const tasks = mod.levels[level];
+  const task = tasks[idx];
+  const doneFlag = isDone(nav.module, level, idx);
+  const navHTML = `
+    <div class="chips">
+      ${tasks.map((_, i) => {
+        const done = isDone(nav.module, level, i);
+        const active = i === idx;
+        return `<button class="chip" data-idx="${i}" style="${active ? 'background:#3282b8;color:#fff;' : ''}${done ? 'border:2px solid #66bb6a;' : ''}">${done ? '✓ ' : ''}Aufgabe ${i + 1}</button>`;
+      }).join('')}
+    </div>
+  `;
+  const ta = document.getElementById('taskArea');
+  ta.innerHTML = `
+    <div class="task-card ${doneFlag ? 'done' : ''}">
+      <div class="task-head">
+        <div class="task-num">${doneFlag ? '<span class="check">✓</span>' : (idx + 1)}</div>
+        <div class="task-text">${task.task}</div>
+      </div>
+      <div id="taskWidget"></div>
+      <div id="taskFeedback"></div>
+    </div>
+    ${navHTML}
+  `;
+  document.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => {
+      nav.taskIdx = parseInt(c.dataset.idx);
+      renderTask(mod, level, nav.taskIdx);
+    };
+  });
+  initWidget(mod, { level, task, idx });
+}
+
+// ============================================================
+// WIDGETS – Initialisierung pro Modultyp
+// ============================================================
+function initWidget(mod, taskCtx) {
+  const container = taskCtx ? document.getElementById('taskWidget') : document.getElementById('exploreArea');
+  switch (mod.type) {
+    case 'numberline': widgetNumberLine(container, taskCtx); break;
+    case 'coordinate': widgetCoordinate(container, taskCtx); break;
+    case 'quadrilateral': widgetQuadrilateral(container, taskCtx); break;
+    case 'rectangle': widgetRectangle(container, taskCtx); break;
+    case 'cuboid': widgetCuboid(container, taskCtx); break;
+    case 'units': widgetUnits(container, taskCtx); break;
+  }
+}
+
+// --- WIDGET: ZAHLENSTRAHL ---
+function widgetNumberLine(container, ctx) {
+  let value = 0;
+  container.innerHTML = `
+    <div class="interact">
+      <svg id="nlSvg" viewBox="0 0 600 120" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="slider-row">
+        <label>Position</label>
+        <input type="range" id="nlSlider" min="-10" max="10" step="1" value="0">
+        <span class="val" id="nlVal">0</span>
+      </div>
+      <div class="chips">
+        ${[-10,-5,-1,0,1,5,10].map(n => `<button class="chip" data-set="${n}">${n}</button>`).join('')}
+      </div>
+      <div class="display-row">
+        <div class="display-item"><span class="big" id="nlValue">0</span>Wert</div>
+        <div class="display-item"><span class="big" id="nlBetrag">0</span>Betrag</div>
+        <div class="display-item"><span class="big" id="nlGegen">0</span>Gegenzahl</div>
+      </div>
+      ${ctx ? `<div style="margin-top:12px;text-align:right;"><button class="btn success" id="nlCheck">Antwort prüfen</button></div>` : ''}
+    </div>
+  `;
+  const slider = document.getElementById('nlSlider');
+  const valLabel = document.getElementById('nlVal');
+  function draw() {
+    valLabel.textContent = value;
+    document.getElementById('nlValue').textContent = value;
+    document.getElementById('nlBetrag').textContent = Math.abs(value);
+    document.getElementById('nlGegen').textContent = -value;
+    const svg = document.getElementById('nlSvg');
+    let h = '<line x1="30" y1="60" x2="570" y2="60" stroke="#0f4c75" stroke-width="3"/>';
+    h += '<polygon points="570,60 562,55 562,65" fill="#0f4c75"/>';
+    h += '<polygon points="30,60 38,55 38,65" fill="#0f4c75"/>';
+    for (let i = -10; i <= 10; i++) {
+      const x = 300 + i * 27;
+      const isZero = i === 0;
+      h += `<line x1="${x}" y1="${isZero ? 48 : 52}" x2="${x}" y2="${isZero ? 72 : 68}" stroke="#0f4c75" stroke-width="${isZero ? 3 : 1.5}"/>`;
+      if (i % 5 === 0 || i === value) {
+        h += `<text x="${x}" y="92" text-anchor="middle" fill="#0f4c75" font-size="14" font-weight="bold">${i}</text>`;
+      }
+    }
+    const px = 300 + value * 27;
+    h += `<circle cx="${px}" cy="60" r="10" fill="#e63946" stroke="#fff" stroke-width="3"/>`;
+    svg.innerHTML = h;
+  }
+  slider.addEventListener('input', e => { value = parseInt(e.target.value); draw(); });
+  container.querySelectorAll('.chip').forEach(c => {
+    c.onclick = () => { value = parseInt(c.dataset.set); slider.value = value; draw(); };
+  });
+  draw();
+  if (ctx) {
+    document.getElementById('nlCheck').onclick = () => {
+      const correct = ctx.task.check(value);
+      showFeedback(correct, ctx);
+    };
+  }
+}
+
+// --- WIDGET: KOORDINATENSYSTEM ---
+function widgetCoordinate(container, ctx) {
+  let point = null;
+  container.innerHTML = `
+    <div class="interact">
+      <svg id="csSvg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="display-row">
+        <div class="display-item"><span class="big" id="csCoord">–</span>Punkt</div>
+      </div>
+      <div class="controls">
+        <button class="btn gh sm" id="csClear">Löschen</button>
+        ${ctx ? `<button class="btn success sm" id="csCheck">Antwort prüfen</button>` : ''}
+      </div>
+    </div>
+  `;
+  function draw() {
+    const svg = document.getElementById('csSvg');
+    let h = '';
+    // Grid
+    for (let i = -5; i <= 5; i++) {
+      const px = 200 + i * 32;
+      const py = 200 - i * 32;
+      h += `<line x1="${px}" y1="40" x2="${px}" y2="360" stroke="#ddd" stroke-width="1"/>`;
+      h += `<line x1="40" y1="${py}" x2="360" y2="${py}" stroke="#ddd" stroke-width="1"/>`;
+    }
+    // Axes
+    h += `<line x1="40" y1="200" x2="360" y2="200" stroke="#0f4c75" stroke-width="2.5"/>`;
+    h += `<line x1="200" y1="40" x2="200" y2="360" stroke="#0f4c75" stroke-width="2.5"/>`;
+    h += `<polygon points="360,200 352,195 352,205" fill="#0f4c75"/>`;
+    h += `<polygon points="200,40 195,48 205,48" fill="#0f4c75"/>`;
+    // Axis labels
+    h += `<text x="365" y="216" fill="#0f4c75" font-size="14" font-weight="bold">x</text>`;
+    h += `<text x="180" y="48" fill="#0f4c75" font-size="14" font-weight="bold">y</text>`;
+    // Numbers on axes
+    for (let i = -5; i <= 5; i++) {
+      if (i === 0) continue;
+      const px = 200 + i * 32;
+      const py = 200 - i * 32;
+      h += `<text x="${px}" y="218" text-anchor="middle" fill="#0f4c75" font-size="11">${i}</text>`;
+      h += `<text x="186" y="${py + 4}" text-anchor="end" fill="#0f4c75" font-size="11">${i}</text>`;
+    }
+    h += `<text x="190" y="218" text-anchor="end" fill="#0f4c75" font-size="11">0</text>`;
+    // Point
+    if (point) {
+      const px = 200 + point.x * 32;
+      const py = 200 - point.y * 32;
+      h += `<circle cx="${px}" cy="${py}" r="9" fill="#e63946" stroke="#fff" stroke-width="3"/>`;
+      h += `<text x="${px + 12}" y="${py - 12}" fill="#e63946" font-size="13" font-weight="bold">P(${point.x}|${point.y})</text>`;
+    }
+    svg.innerHTML = h;
+    document.getElementById('csCoord').textContent = point ? `(${point.x}|${point.y})` : '–';
+  }
+  function handleClick(e) {
+    const svg = document.getElementById('csSvg');
+    const rect = svg.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const svgX = (clientX - rect.left) / rect.width * 400;
+    const svgY = (clientY - rect.top) / rect.height * 400;
+    const x = Math.round((svgX - 200) / 32);
+    const y = Math.round((200 - svgY) / 32);
+    if (x >= -5 && x <= 5 && y >= -5 && y <= 5) {
+      point = { x, y };
+      draw();
+    }
+  }
+  draw();
+  document.getElementById('csSvg').addEventListener('click', handleClick);
+  document.getElementById('csSvg').addEventListener('touchstart', e => { e.preventDefault(); handleClick(e); }, { passive: false });
+  document.getElementById('csClear').onclick = () => { point = null; draw(); };
+  if (ctx) {
+    document.getElementById('csCheck').onclick = () => {
+      const correct = ctx.task.check(point);
+      showFeedback(correct, ctx);
+    };
+  }
+}
+
+// --- WIDGET: VIERECKE ---
+function widgetQuadrilateral(container, ctx) {
+  let selected = 'quadrat';
+  const types = {
+    quadrat: { name: "Quadrat", points: [[100,80],[300,80],[300,280],[100,280]], props: ["4 gleich lange Seiten", "4 rechte Winkel", "achsensymmetrisch (4 Achsen)", "punktsymmetrisch"] },
+    rechteck: { name: "Rechteck", points: [[60,80],[340,80],[340,280],[60,280]], props: ["gegenüberliegende Seiten gleich lang", "4 rechte Winkel", "achsensymmetrisch (2 Achsen)", "punktsymmetrisch"] },
+    raute: { name: "Raute", points: [[200,60],[340,180],[200,300],[60,180]], props: ["4 gleich lange Seiten", "gegenüberliegende Seiten parallel", "achsensymmetrisch (2 Diagonalen)", "punktsymmetrisch"] },
+    parallelogramm: { name: "Parallelogramm", points: [[80,80],[320,80],[280,280],[40,280]], props: ["gegenüberliegende Seiten parallel und gleich lang", "keine rechten Winkel", "punktsymmetrisch", "nicht achsensymmetrisch"] },
+    trapez: { name: "Trapez", points: [[140,80],[260,80],[340,280],[60,280]], props: ["mindestens 2 parallele Seiten", "Seiten verschieden lang", "manchmal achsensymmetrisch (gleichschenkliges Trapez)"] }
+  };
+
+  const isTaskWithShow = ctx && ctx.task.show;
+  const isTaskWithChoices = ctx && ctx.task.choices;
+
+  if (isTaskWithChoices) {
+    container.innerHTML = `
+      <div class="choices" id="qChoices">
+        ${ctx.task.choices.map((c, i) => `<button class="choice" data-i="${i}">${c}</button>`).join('')}
+      </div>
+    `;
+    document.querySelectorAll('#qChoices .choice').forEach(b => {
+      b.onclick = () => {
+        const chosen = parseInt(b.dataset.i);
+        document.querySelectorAll('#qChoices .choice').forEach((x, j) => {
+          x.disabled = true;
+          if (j === ctx.task.correct) x.classList.add('correct');
+          else if (j === chosen) x.classList.add('wrong');
+        });
+        showFeedback(chosen === ctx.task.correct, ctx);
+      };
+    });
+    return;
+  }
+
+  if (isTaskWithShow) selected = ctx.task.show;
+
+  function draw() {
+    const t = types[selected];
+    const pointsStr = t.points.map(p => p.join(',')).join(' ');
+    const svg = document.getElementById('quadSvg');
+    svg.innerHTML = `
+      <polygon points="${pointsStr}" fill="rgba(50,130,184,0.2)" stroke="#0f4c75" stroke-width="3"/>
+      ${t.points.map((p, i) => `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#e63946"/>`).join('')}
+      <text x="200" y="370" text-anchor="middle" fill="#0f4c75" font-size="18" font-weight="bold">${t.name}</text>
+    `;
+    document.getElementById('quadProps').innerHTML =
+      '<strong>Eigenschaften:</strong><ul style="margin-left:18px;margin-top:6px;">' +
+      t.props.map(p => `<li>${p}</li>`).join('') + '</ul>';
+  }
+
+  const showPills = !isTaskWithShow;
+  const pillsHTML = showPills ? `
+    <div class="quad-pills">
+      ${Object.entries(types).map(([k, t]) => `
+        <button class="quad-pill ${k === selected ? 'active' : ''}" data-key="${k}">${t.name}</button>
+      `).join('')}
+    </div>
+  ` : '';
+
+  let answerSection = '';
+  if (ctx && ctx.task.correct) {
+    answerSection = `
+      <div class="controls" style="margin-top:10px;">
+        <input type="text" id="qAns" placeholder="Tippe den Namen ein…">
+        <button class="btn success sm" id="qCheck">Prüfen</button>
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="interact">
+      <svg id="quadSvg" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet"></svg>
+      ${pillsHTML}
+      <div class="explain-box" id="quadProps"></div>
+      ${answerSection}
+    </div>
+  `;
+
+  if (showPills) {
+    document.querySelectorAll('.quad-pill').forEach(p => {
+      p.onclick = () => { selected = p.dataset.key; draw(); document.querySelectorAll('.quad-pill').forEach(x => x.classList.remove('active')); p.classList.add('active'); };
+    });
+  }
+
+  draw();
+
+  if (ctx && ctx.task.correct) {
+    document.getElementById('qCheck').onclick = () => {
+      const val = document.getElementById('qAns').value.trim().toLowerCase();
+      const correct = val === ctx.task.correct.toLowerCase();
+      showFeedback(correct, ctx);
+    };
+  }
+}
+
+// --- WIDGET: RECHTECK ---
+function widgetRectangle(container, ctx) {
+  let a = 4, b = 3;
+  const inputMode = ctx && ctx.task.input;
+  container.innerHTML = `
+    <div class="interact">
+      <svg id="rectSvg" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="slider-row">
+        <label>Seite a</label>
+        <input type="range" id="rectA" min="1" max="16" step="1" value="${a}">
+        <span class="val" id="rectAval">${a}</span>
+      </div>
+      <div class="slider-row">
+        <label>Seite b</label>
+        <input type="range" id="rectB" min="1" max="12" step="1" value="${b}">
+        <span class="val" id="rectBval">${b}</span>
+      </div>
+      <div class="display-row">
+        <div class="display-item"><span class="big" id="rectA2">${a}</span>a</div>
+        <div class="display-item"><span class="big" id="rectB2">${b}</span>b</div>
+        <div class="display-item"><span class="big" id="rectA_">–</span>Fläche A</div>
+        <div class="display-item"><span class="big" id="rectU">–</span>Umfang U</div>
+      </div>
+      ${inputMode ? `
+        <div class="controls" style="margin-top:10px;">
+          <input type="number" id="rectInput" placeholder="Antwort…">
+          <button class="btn success sm" id="rectCheck">Prüfen</button>
+        </div>` : ctx ? `
+        <div style="margin-top:10px;text-align:right;">
+          <button class="btn success" id="rectCheck">Antwort prüfen</button>
+        </div>` : ''}
+    </div>
+  `;
+  function draw() {
+    document.getElementById('rectAval').textContent = a;
+    document.getElementById('rectBval').textContent = b;
+    document.getElementById('rectA2').textContent = a;
+    document.getElementById('rectB2').textContent = b;
+    document.getElementById('rectA_').textContent = a * b;
+    document.getElementById('rectU').textContent = 2 * (a + b);
+    const maxA = 16, maxB = 12;
+    const w = 16 * a;
+    const h = 16 * b;
+    const cx = 200 - w/2, cy = 120 - h/2;
+    const svg = document.getElementById('rectSvg');
+    svg.innerHTML = `
+      <rect x="${cx}" y="${cy}" width="${w}" height="${h}" fill="rgba(50,130,184,0.25)" stroke="#0f4c75" stroke-width="3"/>
+      <text x="200" y="${cy + h + 20}" text-anchor="middle" fill="#0f4c75" font-size="14" font-weight="bold">a = ${a}</text>
+      <text x="${cx - 10}" y="${cy + h/2 + 5}" text-anchor="end" fill="#0f4c75" font-size="14" font-weight="bold">b = ${b}</text>
+      <text x="${cx + w/2}" y="${cy + h/2 + 5}" text-anchor="middle" fill="#0f4c75" font-size="16" font-weight="bold">A = ${a*b}</text>
+    `;
+  }
+  document.getElementById('rectA').addEventListener('input', e => { a = parseInt(e.target.value); draw(); });
+  document.getElementById('rectB').addEventListener('input', e => { b = parseInt(e.target.value); draw(); });
+  draw();
+  if (ctx) {
+    document.getElementById('rectCheck').onclick = () => {
+      if (inputMode) {
+        const val = document.getElementById('rectInput').value;
+        const correct = ctx.task.check(val, { a, b });
+        showFeedback(correct, ctx);
+      } else {
+        const correct = ctx.task.check({ a, b });
+        showFeedback(correct, ctx);
+      }
+    };
+  }
+}
+
+// --- WIDGET: QUADER (3D iso) ---
+function widgetCuboid(container, ctx) {
+  let a = 3, b = 2, c = 2;
+  const inputMode = ctx && ctx.task.input;
+  container.innerHTML = `
+    <div class="interact">
+      <svg id="cubSvg" viewBox="0 0 400 280" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="slider-row">
+        <label>a (Länge)</label>
+        <input type="range" id="cubA" min="1" max="10" step="1" value="${a}">
+        <span class="val" id="cubAval">${a}</span>
+      </div>
+      <div class="slider-row">
+        <label>b (Breite)</label>
+        <input type="range" id="cubB" min="1" max="10" step="1" value="${b}">
+        <span class="val" id="cubBval">${b}</span>
+      </div>
+      <div class="slider-row">
+        <label>c (Höhe)</label>
+        <input type="range" id="cubC" min="1" max="10" step="1" value="${c}">
+        <span class="val" id="cubCval">${c}</span>
+      </div>
+      <div class="display-row">
+        <div class="display-item"><span class="big" id="cubV">–</span>Volumen V</div>
+        <div class="display-item"><span class="big" id="cubO">–</span>Oberfläche O</div>
+      </div>
+      ${inputMode ? `
+        <div class="controls" style="margin-top:10px;">
+          <input type="number" id="cubInput" placeholder="Antwort…">
+          <button class="btn success sm" id="cubCheck">Prüfen</button>
+        </div>` : ctx ? `
+        <div style="margin-top:10px;text-align:right;">
+          <button class="btn success" id="cubCheck">Antwort prüfen</button>
+        </div>` : ''}
+    </div>
+  `;
+  function draw() {
+    document.getElementById('cubAval').textContent = a;
+    document.getElementById('cubBval').textContent = b;
+    document.getElementById('cubCval').textContent = c;
+    document.getElementById('cubV').textContent = a * b * c;
+    document.getElementById('cubO').textContent = 2 * (a*b + a*c + b*c);
+    // Isometric drawing
+    const u = 16; // unit pixel
+    const ox = 200, oy = 200;
+    // Use a 2D projection: x → (ax, ay), depth → angle 30°
+    const angle = Math.PI / 6; // 30 deg
+    const dx = Math.cos(angle) * u; // depth x per unit
+    const dy = Math.sin(angle) * u; // depth y per unit
+    // Front face corners
+    const w = a * u;
+    const h = c * u;
+    const d = b * dx, dyD = b * dy;
+    const baseX = ox - w/2;
+    const baseY = oy - h/2;
+    // Vertices
+    const FBL = [baseX, baseY + h];
+    const FBR = [baseX + w, baseY + h];
+    const FTR = [baseX + w, baseY];
+    const FTL = [baseX, baseY];
+    const BBL = [FBL[0] + d, FBL[1] - dyD];
+    const BBR = [FBR[0] + d, FBR[1] - dyD];
+    const BTR = [FTR[0] + d, FTR[1] - dyD];
+    const BTL = [FTL[0] + d, FTL[1] - dyD];
+
+    const svg = document.getElementById('cubSvg');
+    svg.innerHTML = `
+      <!-- top -->
+      <polygon points="${FTL.join(',')} ${FTR.join(',')} ${BTR.join(',')} ${BTL.join(',')}" fill="rgba(50,130,184,0.45)" stroke="#0f4c75" stroke-width="2"/>
+      <!-- right -->
+      <polygon points="${FTR.join(',')} ${FBR.join(',')} ${BBR.join(',')} ${BTR.join(',')}" fill="rgba(50,130,184,0.3)" stroke="#0f4c75" stroke-width="2"/>
+      <!-- front -->
+      <polygon points="${FTL.join(',')} ${FTR.join(',')} ${FBR.join(',')} ${FBL.join(',')}" fill="rgba(50,130,184,0.2)" stroke="#0f4c75" stroke-width="2"/>
+      <!-- labels -->
+      <text x="${(FBL[0]+FBR[0])/2}" y="${FBR[1]+18}" text-anchor="middle" fill="#0f4c75" font-size="13" font-weight="bold">a = ${a}</text>
+      <text x="${FBL[0]-8}" y="${(FTL[1]+FBL[1])/2+4}" text-anchor="end" fill="#0f4c75" font-size="13" font-weight="bold">c = ${c}</text>
+      <text x="${(FBR[0]+BBR[0])/2+6}" y="${(FBR[1]+BBR[1])/2+10}" fill="#0f4c75" font-size="13" font-weight="bold">b = ${b}</text>
+    `;
+  }
+  document.getElementById('cubA').addEventListener('input', e => { a = parseInt(e.target.value); draw(); });
+  document.getElementById('cubB').addEventListener('input', e => { b = parseInt(e.target.value); draw(); });
+  document.getElementById('cubC').addEventListener('input', e => { c = parseInt(e.target.value); draw(); });
+  draw();
+  if (ctx) {
+    document.getElementById('cubCheck').onclick = () => {
+      if (inputMode) {
+        const val = document.getElementById('cubInput').value;
+        const correct = ctx.task.check(val, { a, b, c });
+        showFeedback(correct, ctx);
+      } else {
+        const correct = ctx.task.check({ a, b, c });
+        showFeedback(correct, ctx);
+      }
+    };
+  }
+}
+
+// --- WIDGET: EINHEITEN ---
+function widgetUnits(container, ctx) {
+  const inputMode = ctx && ctx.task.input;
+  container.innerHTML = `
+    <div class="interact">
+      <h3 style="margin-top:0;color:#bbe1fa;">Längen</h3>
+      <div class="slider-row">
+        <label>Wert (cm)</label>
+        <input type="range" id="uniSlider" min="1" max="10000" step="1" value="100">
+        <span class="val" id="uniVal">100 cm</span>
+      </div>
+      <div class="display-row" id="uniDisplay"></div>
+      <h3 style="color:#bbe1fa;">Massen</h3>
+      <div class="display-row" id="uniMasses"></div>
+      <h3 style="color:#bbe1fa;">Zeit</h3>
+      <div class="display-row" id="uniTime"></div>
+      ${inputMode ? `
+        <div class="controls" style="margin-top:14px;">
+          <input type="text" id="uniInput" placeholder="Deine Antwort…">
+          <button class="btn success sm" id="uniCheck">Prüfen</button>
+        </div>` : ''}
+    </div>
+  `;
+  function fmt(n) {
+    if (n < 0.001) return n.toFixed(6);
+    if (n < 1) return n.toFixed(3);
+    if (n < 10) return n.toFixed(2);
+    if (n < 100) return n.toFixed(1);
+    return n.toLocaleString('de-DE');
+  }
+  function draw() {
+    const cm = parseInt(document.getElementById('uniSlider').value);
+    document.getElementById('uniVal').textContent = cm + ' cm';
+    const mm = cm * 10;
+    const m = cm / 100;
+    const km = cm / 100000;
+    const dm = cm / 10;
+    document.getElementById('uniDisplay').innerHTML = `
+      <div class="display-item"><span class="big">${fmt(mm)}</span>mm</div>
+      <div class="display-item"><span class="big">${fmt(cm)}</span>cm</div>
+      <div class="display-item"><span class="big">${fmt(dm)}</span>dm</div>
+      <div class="display-item"><span class="big">${fmt(m)}</span>m</div>
+      <div class="display-item"><span class="big">${fmt(km)}</span>km</div>
+    `;
+    // Fixed table for masses
+    document.getElementById('uniMasses').innerHTML = `
+      <div class="display-item"><span class="big">1.000</span>mg = 1 g</div>
+      <div class="display-item"><span class="big">1.000</span>g = 1 kg</div>
+      <div class="display-item"><span class="big">1.000</span>kg = 1 t</div>
+    `;
+    document.getElementById('uniTime').innerHTML = `
+      <div class="display-item"><span class="big">60</span>s = 1 min</div>
+      <div class="display-item"><span class="big">60</span>min = 1 h</div>
+      <div class="display-item"><span class="big">24</span>h = 1 Tag</div>
+      <div class="display-item"><span class="big">7</span>Tage = 1 Woche</div>
+    `;
+  }
+  document.getElementById('uniSlider').addEventListener('input', draw);
+  draw();
+  if (ctx) {
+    document.getElementById('uniCheck').onclick = () => {
+      const val = document.getElementById('uniInput').value;
+      const correct = ctx.task.check(val);
+      showFeedback(correct, ctx);
+    };
+  }
+}
+
+// ============================================================
+// FEEDBACK HANDLER
+// ============================================================
+function showFeedback(correct, ctx) {
+  const fb = document.getElementById('taskFeedback');
+  if (correct) {
+    fb.innerHTML = `<div class="feedback ok">✓ Richtig! Super gemacht.</div>
+      <div style="text-align:right;margin-top:10px;">
+        <button class="btn sm" id="nextTask">${ctx.idx + 1 < MODULES[nav.module].levels[ctx.level].length ? 'Nächste Aufgabe →' : 'Auswertung ansehen'}</button>
+      </div>`;
+    markDone(nav.module, ctx.level, ctx.idx);
+    document.getElementById('nextTask').onclick = () => {
+      if (ctx.idx + 1 < MODULES[nav.module].levels[ctx.level].length) {
+        nav.taskIdx = ctx.idx + 1;
+        renderTask(MODULES[nav.module], ctx.level, nav.taskIdx);
+      } else {
+        renderModule(); // re-render with updated done states
+      }
+    };
+  } else {
+    fb.innerHTML = `<div class="feedback bad">✗ Noch nicht ganz – versuch es nochmal.</div>
+      <div class="feedback tip">💡 Tipp: ${ctx.task.hint}</div>`;
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderHome();
+window.renderHome = renderHome;
+window.resetAll = resetAll;
+</script>
+</body>
+</html>
