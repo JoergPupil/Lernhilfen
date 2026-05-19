@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mathe Tower Defense · Klasse 5</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Math-TD">
+<meta name="theme-color" content="#0a0e27">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0e27'/><circle cx='50' cy='42' r='22' fill='%23ff5252'/><text x='50' y='50' font-size='20' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>3+4</text><polygon points='40,72 50,82 60,72' fill='%23ffc107'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%230a0e27'/><circle cx='90' cy='78' r='40' fill='%23ff5252'/><text x='90' y='92' font-size='32' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>3+4</text><polygon points='70,128 90,148 110,128' fill='%23ffc107'/></svg>">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #0a0e27;
+    color: #fff;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .app {
+    max-width: 480px;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(80,30,120,0.5) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(20,80,120,0.4) 0%, transparent 40%),
+      linear-gradient(180deg, #0a0e27 0%, #1a1f4f 50%, #0a0e27 100%);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  /* Stars in background */
+  .app::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, white, transparent),
+      radial-gradient(1px 1px at 60px 80px, white, transparent),
+      radial-gradient(1px 1px at 120px 50px, white, transparent),
+      radial-gradient(1px 1px at 180px 110px, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 240px 30px, white, transparent),
+      radial-gradient(1px 1px at 310px 90px, white, transparent),
+      radial-gradient(1px 1px at 360px 150px, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 80px 180px, white, transparent),
+      radial-gradient(1px 1px at 200px 220px, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 280px 260px, white, transparent);
+    background-repeat: repeat;
+    background-size: 400px 300px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  /* ---------------- START SCREEN ---------------- */
+  .start-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+    overflow-y: auto;
+  }
+  .logo {
+    font-size: 36px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.05;
+    margin-bottom: 4px;
+    letter-spacing: -1px;
+    background: linear-gradient(180deg, #ffc107 0%, #ff5252 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255,193,7,0.3);
+  }
+  .subtitle {
+    text-align: center;
+    color: #a0a8c0;
+    font-size: 13px;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+  .instructions {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    max-width: 380px;
+    color: #d0d8e8;
+  }
+  .instructions strong { color: #ffc107; }
+
+  .diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    margin-bottom: 14px;
+  }
+  .diff-btn {
+    padding: 16px 18px;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: left;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+  .diff-btn:active { transform: scale(0.97); }
+  .diff-btn .badge {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .diff-btn .info { flex: 1; }
+  .diff-btn .info .name { font-weight: 800; font-size: 16px; margin-bottom: 2px; }
+  .diff-btn .info .desc { font-size: 12px; opacity: 0.85; }
+  .diff-btn .high { font-size: 11px; opacity: 0.85; text-align: right; }
+  .diff-btn .high strong { display: block; font-size: 18px; }
+
+  .easy { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+  .easy .badge { background: rgba(255,255,255,0.2); }
+  .medium { background: linear-gradient(135deg, #ff9800, #e65100); }
+  .medium .badge { background: rgba(255,255,255,0.2); }
+  .hard { background: linear-gradient(135deg, #e53935, #b71c1c); }
+  .hard .badge { background: rgba(255,255,255,0.2); }
+
+  .reset-link {
+    background: transparent;
+    border: 0;
+    color: #6a7090;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  /* ---------------- GAME UI ---------------- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(10,14,39,0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 5;
+    backdrop-filter: blur(8px);
+  }
+  .topbar .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .topbar .stat .label { font-size: 10px; color: #a0a8c0; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+  .lives { color: #ff5252; }
+  .lives .hearts { font-size: 18px; letter-spacing: 1px; }
+  .wave { color: #ffc107; }
+  .score { color: #4caf50; }
+  .pause-btn {
+    background: rgba(255,255,255,0.1);
+    border: 0;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .game-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .game-area svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .input-area {
+    background: rgba(10,14,39,0.95);
+    border-top: 2px solid rgba(255,193,7,0.3);
+    padding: 10px 12px env(safe-area-inset-bottom, 12px);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+  }
+  .input-area input {
+    flex: 1;
+    background: #fff;
+    color: #0a0e27;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 22px;
+    font-family: inherit;
+    font-weight: 700;
+    text-align: center;
+    min-height: 48px;
+    outline: none;
+  }
+  .input-area input:focus { border-color: #ff5252; }
+  .fire-btn {
+    background: linear-gradient(135deg, #ff5252, #c62828);
+    color: #fff;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 22px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    min-height: 48px;
+    min-width: 80px;
+    box-shadow: 0 2px 10px rgba(255,82,82,0.4);
+  }
+  .fire-btn:active { transform: scale(0.95); }
+
+  /* Wave start overlay */
+  .wave-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,14,39,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    flex-direction: column;
+    backdrop-filter: blur(6px);
+  }
+  .wave-overlay .big {
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffc107;
+    text-shadow: 0 0 20px rgba(255,193,7,0.6);
+    animation: pulse 0.8s ease-in-out;
+  }
+  .wave-overlay .sub { font-size: 16px; color: #fff; margin-top: 8px; }
+  @keyframes pulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Game over screen */
+  .gameover {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,14,39,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 200;
+    padding: 24px;
+    backdrop-filter: blur(8px);
+  }
+  .gameover h2 {
+    font-size: 36px;
+    font-weight: 900;
+    color: #ff5252;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .gameover .final-score {
+    font-size: 56px;
+    font-weight: 900;
+    color: #ffc107;
+    margin: 12px 0;
+    text-shadow: 0 0 20px rgba(255,193,7,0.5);
+  }
+  .gameover .stats {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0 18px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #d0d8e8;
+  }
+  .gameover .stats strong { color: #ffc107; }
+  .gameover .actions { display: flex; gap: 10px; margin-top: 6px; }
+  .gameover .actions button {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: #fff;
+    border: 0;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .gameover .actions button.gh { background: rgba(255,255,255,0.1); }
+  .gameover .actions button:active { transform: scale(0.96); }
+
+  /* Pause overlay */
+  .pause-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,14,39,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 100;
+    backdrop-filter: blur(6px);
+  }
+  .pause-overlay h2 { font-size: 32px; color: #ffc107; margin-bottom: 12px; }
+  .pause-overlay button {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: #fff;
+    border: 0;
+    padding: 12px 28px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .pause-overlay .gh {
+    background: rgba(255,255,255,0.1);
+    margin-left: 8px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Floating point gain */
+  @keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+  .float-text {
+    position: absolute;
+    color: #4caf50;
+    font-weight: 800;
+    font-size: 22px;
+    pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 50;
+  }
+  .float-text.miss { color: #ff5252; }
+
+  /* Shake effect when base hit */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .shake { animation: shake 0.4s; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- START SCREEN -->
+  <div class="start-screen" id="startScreen">
+    <div class="logo">MATHE TOWER<br>DEFENSE</div>
+    <div class="subtitle">Verteidige deine Festung mit Mathe!</div>
+
+    <div class="instructions">
+      <strong>So spielst du:</strong> Mathe-Monster nähern sich deiner Festung.
+      Tippe das richtige Ergebnis ein und drücke <strong>🔥 FEUER!</strong>
+      – das Monster mit dieser Antwort wird vernichtet.
+      Schaffen Monster es bis nach unten, verlierst du ein Leben.
+      Bei <strong>0 Leben</strong> ist das Spiel vorbei.
+    </div>
+
+    <div class="diff-list" id="diffList"></div>
+
+    <button class="reset-link" onclick="resetHighScores()">Highscores zurücksetzen</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="hidden" id="gameScreen" style="flex:1;display:flex;flex-direction:column;">
+    <div class="topbar">
+      <div class="stat lives"><div><span class="label">Leben</span><span class="hearts" id="hearts">❤❤❤</span></div></div>
+      <div class="stat wave"><div><span class="label">Welle</span><span id="waveNum">1</span></div></div>
+      <div class="stat score"><div><span class="label">Punkte</span><span id="scoreNum">0</span></div></div>
+      <button class="pause-btn" onclick="pauseGame()">⏸</button>
+    </div>
+    <div class="game-area" id="gameArea">
+      <svg id="gameSvg" viewBox="0 0 400 600" preserveAspectRatio="xMidYMax meet"></svg>
+      <div id="waveOverlay" class="wave-overlay hidden">
+        <div class="big" id="waveOverlayText">Welle 1</div>
+        <div class="sub" id="waveOverlaySub">Bereit?</div>
+      </div>
+      <div id="pauseOverlay" class="pause-overlay hidden">
+        <h2>⏸ Pause</h2>
+        <div>
+          <button onclick="resumeGame()">▶ Weiter</button>
+          <button class="gh" onclick="quitToMenu()">Hauptmenü</button>
+        </div>
+      </div>
+      <div id="gameoverOverlay" class="gameover hidden">
+        <h2>💥 Game Over</h2>
+        <div class="final-score" id="finalScore">0</div>
+        <div class="stats" id="finalStats"></div>
+        <div class="actions">
+          <button onclick="startGame(currentDifficulty)">🔄 Nochmal</button>
+          <button class="gh" onclick="quitToMenu()">Menü</button>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <input type="number" id="answerInput" placeholder="?" inputmode="numeric" autocomplete="off">
+      <button class="fire-btn" id="fireBtn">🔥 FEUER</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const STORAGE_KEY = 'mathe_td_v1';
+
+const DIFFICULTIES = {
+  easy: {
+    name: "Anfänger",
+    icon: "★",
+    desc: "Plus, Minus, kleines Einmaleins",
+    startSpeed: 0.22,          // px per frame (16ms)
+    speedPerWave: 0.025,
+    enemiesBase: 3,
+    enemiesPerWave: 1,
+    spawnIntervalBase: 2400,   // ms
+    spawnIntervalMin: 1100,
+    spawnIntervalDec: 80,
+    color: "easy",
+    badge: "★"
+  },
+  medium: {
+    name: "Fortgeschritten",
+    icon: "★★",
+    desc: "Klammern, Rechengesetze, Negative Zahlen",
+    startSpeed: 0.30,
+    speedPerWave: 0.035,
+    enemiesBase: 4,
+    enemiesPerWave: 1,
+    spawnIntervalBase: 2000,
+    spawnIntervalMin: 900,
+    spawnIntervalDec: 90,
+    color: "medium",
+    badge: "★★"
+  },
+  hard: {
+    name: "Profi",
+    icon: "★★★",
+    desc: "Größen, Flächen, Volumen, Mehrschritt",
+    startSpeed: 0.40,
+    speedPerWave: 0.045,
+    enemiesBase: 5,
+    enemiesPerWave: 1,
+    spawnIntervalBase: 1700,
+    spawnIntervalMin: 700,
+    spawnIntervalDec: 100,
+    color: "hard",
+    badge: "★★★"
+  }
+};
+
+// ============================================================
+// PROBLEM GENERATORS
+// ============================================================
+function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pickWeighted(items, weights) {
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < items.length; i++) {
+    if (r < weights[i]) return items[i];
+    r -= weights[i];
+  }
+  return items[items.length - 1];
+}
+
+const GENERATORS = {
+  easy: function() {
+    const type = pickWeighted(['add', 'sub', 'mul', 'div'], [3, 3, 2, 1]);
+    if (type === 'add') {
+      const a = rnd(2, 30), b = rnd(2, 20);
+      return { text: `${a} + ${b}`, answer: a + b, color: '#4caf50' };
+    } else if (type === 'sub') {
+      const a = rnd(10, 40), b = rnd(1, a - 1);
+      return { text: `${a} − ${b}`, answer: a - b, color: '#2196f3' };
+    } else if (type === 'mul') {
+      const a = rnd(2, 9), b = rnd(2, 9);
+      return { text: `${a} · ${b}`, answer: a * b, color: '#ff9800' };
+    } else {
+      const b = rnd(2, 9), q = rnd(2, 10);
+      const a = b * q;
+      return { text: `${a} : ${b}`, answer: q, color: '#ffeb3b' };
+    }
+  },
+  medium: function() {
+    const type = pickWeighted(['add', 'sub', 'mul', 'mix', 'brackets', 'neg'], [2, 2, 2, 3, 2, 2]);
+    if (type === 'add') {
+      const a = rnd(15, 80), b = rnd(10, 50);
+      return { text: `${a} + ${b}`, answer: a + b, color: '#4caf50' };
+    } else if (type === 'sub') {
+      const a = rnd(20, 100), b = rnd(5, a - 5);
+      return { text: `${a} − ${b}`, answer: a - b, color: '#2196f3' };
+    } else if (type === 'mul') {
+      const a = rnd(3, 12), b = rnd(3, 12);
+      return { text: `${a} · ${b}`, answer: a * b, color: '#ff9800' };
+    } else if (type === 'mix') {
+      // Punkt vor Strich
+      const a = rnd(2, 9), b = rnd(2, 8), c = rnd(2, 9);
+      const op = Math.random() < 0.5 ? '+' : '−';
+      const result = op === '+' ? a + b * c : a + b * c; // start with a + b*c
+      // Generate forms: a + b·c  or  a − b·c (avoid negative results)
+      if (op === '+') {
+        return { text: `${a} + ${b} · ${c}`, answer: a + b * c, color: '#9c27b0' };
+      } else {
+        const big = rnd(b * c + 1, b * c + 20);
+        return { text: `${big} − ${b} · ${c}`, answer: big - b * c, color: '#9c27b0' };
+      }
+    } else if (type === 'brackets') {
+      const a = rnd(2, 8), b = rnd(2, 8), c = rnd(2, 5);
+      return { text: `(${a} + ${b}) · ${c}`, answer: (a + b) * c, color: '#9c27b0' };
+    } else { // neg
+      const r = Math.random();
+      if (r < 0.4) {
+        const a = rnd(3, 15), b = rnd(3, 15);
+        return { text: `(−${a}) + ${b}`, answer: -a + b, color: '#e91e63' };
+      } else if (r < 0.7) {
+        const a = rnd(1, 10), b = rnd(a + 1, a + 12);
+        return { text: `${a} − ${b}`, answer: a - b, color: '#e91e63' };
+      } else {
+        const a = rnd(2, 12), b = rnd(2, 8);
+        return { text: `${a} − (−${b})`, answer: a + b, color: '#e91e63' };
+      }
+    }
+  },
+  hard: function() {
+    const type = pickWeighted(['mix3', 'neg', 'units', 'area', 'volume', 'brackets'], [2, 2, 2, 2, 2, 2]);
+    if (type === 'mix3') {
+      // a + b · c − d
+      const b = rnd(2, 8), c = rnd(2, 6);
+      const a = rnd(b * c + 2, b * c + 20);
+      const d = rnd(2, a - b * c - 1);
+      return { text: `${a} − ${b} · ${c} + ${d}`, answer: a - b * c + d, color: '#9c27b0' };
+    } else if (type === 'neg') {
+      const a = rnd(3, 20), b = rnd(3, 20), c = rnd(3, 10);
+      const r = Math.random();
+      if (r < 0.5) {
+        return { text: `(−${a}) + ${b} − ${c}`, answer: -a + b - c, color: '#e91e63' };
+      } else {
+        return { text: `${a} − ${b} − (−${c})`, answer: a - b + c, color: '#e91e63' };
+      }
+    } else if (type === 'units') {
+      const cases = [
+        () => { const v = rnd(2, 9); return { text: `${v} m = ? cm`, answer: v * 100 }; },
+        () => { const v = rnd(2, 9); return { text: `${v} kg = ? g`, answer: v * 1000 }; },
+        () => { const v = rnd(2, 9); return { text: `${v} km = ? m`, answer: v * 1000 }; },
+        () => { const v = rnd(2, 5); return { text: `${v} h = ? min`, answer: v * 60 }; },
+        () => { const v = rnd(2, 9); return { text: `${v} m² = ? dm²`, answer: v * 100 }; },
+        () => { const v = rnd(2, 5); return { text: `${v} m³ = ? l`, answer: v * 1000 }; },
+        () => { const v = rnd(2, 9); return { text: `${v},5 € = ? ct`, answer: v * 100 + 50 }; }
+      ];
+      const p = cases[rnd(0, cases.length - 1)]();
+      return { text: p.text, answer: p.answer, color: '#00bcd4' };
+    } else if (type === 'area') {
+      const a = rnd(3, 15), b = rnd(3, 12);
+      const r = Math.random();
+      if (r < 0.5) {
+        return { text: `▭ a=${a}, b=${b}<tspan dy='-3' font-size='10'> </tspan> A=?`, answer: a * b, color: '#3f51b5' };
+      } else {
+        return { text: `▭ a=${a}, b=${b}<tspan dy='-3' font-size='10'> </tspan> U=?`, answer: 2 * (a + b), color: '#3f51b5' };
+      }
+    } else if (type === 'volume') {
+      const a = rnd(2, 8), b = rnd(2, 6), c = rnd(2, 5);
+      return { text: `📦 ${a}·${b}·${c} V=?`, answer: a * b * c, color: '#673ab7' };
+    } else { // brackets
+      const a = rnd(3, 9), b = rnd(2, 7), c = rnd(2, 6), d = rnd(2, 5);
+      return { text: `(${a}+${b}) · ${c} − ${d}`, answer: (a + b) * c - d, color: '#9c27b0' };
+    }
+  }
+};
+
+// ============================================================
+// HIGHSCORES
+// ============================================================
+function loadScores() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { easy: 0, medium: 0, hard: 0, gamesPlayed: 0, enemiesKilled: 0 };
+    return Object.assign({ easy: 0, medium: 0, hard: 0, gamesPlayed: 0, enemiesKilled: 0 }, JSON.parse(raw));
+  } catch (e) { return { easy: 0, medium: 0, hard: 0, gamesPlayed: 0, enemiesKilled: 0 }; }
+}
+function saveScores(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {} }
+function resetHighScores() {
+  if (!confirm('Wirklich alle Highscores löschen?')) return;
+  saveScores({ easy: 0, medium: 0, hard: 0, gamesPlayed: 0, enemiesKilled: 0 });
+  renderStart();
+}
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let game = null;
+let currentDifficulty = null;
+let scores = loadScores();
+
+function newGame(diff) {
+  return {
+    diff: diff,
+    wave: 1,
+    score: 0,
+    lives: 3,
+    enemies: [],
+    nextEnemyId: 1,
+    waveEnemiesRemaining: 0,
+    waveEnemiesSpawned: 0,
+    lastSpawn: 0,
+    waveStartTime: 0,
+    waveBetween: false,
+    waveBetweenStart: 0,
+    paused: false,
+    over: false,
+    bullets: [],
+    enemiesKilled: 0,
+    combo: 0,
+    bestCombo: 0,
+    startTime: Date.now()
+  };
+}
+
+// ============================================================
+// SCREEN RENDERING
+// ============================================================
+function renderStart() {
+  scores = loadScores();
+  document.getElementById('startScreen').classList.remove('hidden');
+  document.getElementById('gameScreen').classList.add('hidden');
+  const list = document.getElementById('diffList');
+  list.innerHTML = Object.entries(DIFFICULTIES).map(([key, d]) => `
+    <button class="diff-btn ${d.color}" data-diff="${key}">
+      <div class="badge">${d.badge}</div>
+      <div class="info">
+        <div class="name">${d.name}</div>
+        <div class="desc">${d.desc}</div>
+      </div>
+      <div class="high">Highscore<strong>${scores[key]}</strong></div>
+    </button>
+  `).join('');
+  list.querySelectorAll('.diff-btn').forEach(b => {
+    b.onclick = () => startGame(b.dataset.diff);
+  });
+}
+
+function startGame(diff) {
+  currentDifficulty = diff;
+  game = newGame(diff);
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  document.getElementById('gameoverOverlay').classList.add('hidden');
+  document.getElementById('pauseOverlay').classList.add('hidden');
+  document.getElementById('answerInput').value = '';
+  updateHUD();
+  showWaveOverlay(game.wave);
+  setTimeout(() => {
+    hideWaveOverlay();
+    initWave();
+    requestAnimationFrame(loop);
+  }, 1300);
+  document.getElementById('answerInput').focus();
+}
+
+function quitToMenu() { game = null; renderStart(); }
+function pauseGame() {
+  if (!game || game.over) return;
+  game.paused = true;
+  document.getElementById('pauseOverlay').classList.remove('hidden');
+}
+function resumeGame() {
+  if (!game) return;
+  game.paused = false;
+  document.getElementById('pauseOverlay').classList.add('hidden');
+  game.lastSpawn = performance.now() - 0; // reset to now to avoid burst
+  requestAnimationFrame(loop);
+  document.getElementById('answerInput').focus();
+}
+
+// ============================================================
+// WAVE / SPAWN LOGIC
+// ============================================================
+function initWave() {
+  const d = DIFFICULTIES[game.diff];
+  game.waveEnemiesRemaining = d.enemiesBase + (game.wave - 1) * d.enemiesPerWave;
+  game.waveEnemiesSpawned = 0;
+  game.lastSpawn = performance.now();
+  game.waveStartTime = performance.now();
+  game.waveBetween = false;
+}
+
+function spawnEnemy() {
+  const d = DIFFICULTIES[game.diff];
+  const prob = GENERATORS[game.diff]();
+  // Avoid duplicate answers on screen at the same time
+  const existingAnswers = game.enemies.map(e => e.answer);
+  let problem = prob;
+  let tries = 0;
+  while (existingAnswers.includes(problem.answer) && tries < 8) {
+    problem = GENERATORS[game.diff]();
+    tries++;
+  }
+  // Position randomly across width
+  const x = rnd(50, 350);
+  const speed = d.startSpeed + (game.wave - 1) * d.speedPerWave;
+  game.enemies.push({
+    id: game.nextEnemyId++,
+    x: x,
+    y: -40,
+    speed: speed,
+    text: problem.text,
+    answer: problem.answer,
+    color: problem.color,
+    dying: false,
+    dyingT: 0,
+    spawned: performance.now()
+  });
+  game.waveEnemiesSpawned++;
+}
+
+function maybeSpawn(now) {
+  if (game.waveBetween) return;
+  if (game.waveEnemiesSpawned >= game.waveEnemiesRemaining) return;
+  const d = DIFFICULTIES[game.diff];
+  const interval = Math.max(d.spawnIntervalMin, d.spawnIntervalBase - (game.wave - 1) * d.spawnIntervalDec);
+  if (now - game.lastSpawn >= interval) {
+    spawnEnemy();
+    game.lastSpawn = now;
+  }
+}
+
+// ============================================================
+// MAIN GAME LOOP
+// ============================================================
+function loop(timestamp) {
+  if (!game || game.paused || game.over) return;
+
+  const now = performance.now();
+  // Between-wave check
+  if (game.waveBetween) {
+    if (now - game.waveBetweenStart > 1800) {
+      game.wave++;
+      showWaveOverlay(game.wave);
+      setTimeout(() => { hideWaveOverlay(); initWave(); }, 1100);
+    }
+  } else {
+    maybeSpawn(now);
+  }
+
+  // Move enemies down
+  for (const e of game.enemies) {
+    if (e.dying) {
+      e.dyingT += 16;
+    } else {
+      e.y += e.speed * 6; // factor for visible movement
+      if (e.y > 540) {
+        // reached the base
+        loseLife();
+        e.dying = true;
+        e.dyingT = 999; // remove immediately
+      }
+    }
+  }
+  // Remove dead/dying enemies
+  game.enemies = game.enemies.filter(e => !(e.dying && e.dyingT > 400));
+
+  // Check wave end
+  if (!game.waveBetween && game.waveEnemiesSpawned >= game.waveEnemiesRemaining && game.enemies.length === 0) {
+    game.waveBetween = true;
+    game.waveBetweenStart = now;
+    game.score += 50 + game.wave * 10; // wave bonus
+    updateHUD();
+  }
+
+  draw();
+  if (!game.over) requestAnimationFrame(loop);
+}
+
+// ============================================================
+// DRAWING
+// ============================================================
+function draw() {
+  const svg = document.getElementById('gameSvg');
+  let h = '';
+
+  // Base / Festung at bottom
+  h += `<defs>
+    <linearGradient id="baseGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc107"/>
+      <stop offset="1" stop-color="#ff5252"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+    </filter>
+  </defs>`;
+  // Shield line at y=540
+  h += `<rect x="0" y="540" width="400" height="60" fill="url(#baseGrad)" opacity="0.85"/>`;
+  // Crenellations
+  for (let i = 0; i < 8; i++) {
+    h += `<rect x="${i * 50 + 10}" y="528" width="30" height="14" fill="#ffc107"/>`;
+  }
+  // Castle text
+  h += `<text x="200" y="580" text-anchor="middle" fill="rgba(0,0,0,0.6)" font-family="Arial,sans-serif" font-size="18" font-weight="bold">⚔ FESTUNG ⚔</text>`;
+
+  // Enemies
+  for (const e of game.enemies) {
+    const r = 32;
+    const scale = e.dying ? Math.max(0, 1 - e.dyingT / 400) : 1;
+    if (scale > 0) {
+      const cx = e.x, cy = e.y;
+      // Trail
+      h += `<circle cx="${cx}" cy="${cy + 24}" r="${4 * scale}" fill="${e.color}" opacity="0.3"/>`;
+      h += `<circle cx="${cx}" cy="${cy + 14}" r="${6 * scale}" fill="${e.color}" opacity="0.5"/>`;
+      // Body
+      h += `<circle cx="${cx}" cy="${cy}" r="${r * scale}" fill="${e.color}" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>`;
+      // Text
+      h += `<text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="${15 * scale}" font-weight="bold">${e.text}</text>`;
+    }
+  }
+  svg.innerHTML = h;
+}
+
+// ============================================================
+// FIRE / ANSWER HANDLING
+// ============================================================
+function fireAnswer() {
+  if (!game || game.paused || game.over) return;
+  const inp = document.getElementById('answerInput');
+  const v = inp.value.trim();
+  if (v === '' || v === '-') return;
+  const num = parseInt(v);
+  if (isNaN(num)) { inp.value = ''; return; }
+  // Find lowest (most threatening) enemy with matching answer
+  let target = null;
+  for (const e of game.enemies) {
+    if (!e.dying && e.answer === num) {
+      if (!target || e.y > target.y) target = e;
+    }
+  }
+  if (target) {
+    target.dying = true;
+    target.dyingT = 0;
+    game.combo++;
+    if (game.combo > game.bestCombo) game.bestCombo = game.combo;
+    const comboBonus = Math.min(game.combo - 1, 5) * 5;
+    const pts = 10 + comboBonus + Math.floor(game.wave * 2);
+    game.score += pts;
+    game.enemiesKilled++;
+    floatText(`+${pts}${game.combo > 2 ? ' 🔥x' + game.combo : ''}`, target.x, target.y);
+    updateHUD();
+  } else {
+    game.combo = 0;
+    floatText('Daneben!', 200, 300, true);
+  }
+  inp.value = '';
+  inp.focus();
+}
+
+function floatText(txt, x, y, miss) {
+  const area = document.getElementById('gameArea');
+  const rect = area.getBoundingClientRect();
+  const sx = (x / 400) * rect.width;
+  const sy = (y / 600) * rect.height;
+  const el = document.createElement('div');
+  el.className = 'float-text' + (miss ? ' miss' : '');
+  el.textContent = txt;
+  el.style.left = (sx - 20) + 'px';
+  el.style.top = (sy - 10) + 'px';
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 850);
+}
+
+function loseLife() {
+  game.lives--;
+  game.combo = 0;
+  document.getElementById('gameSvg').classList.add('shake');
+  setTimeout(() => document.getElementById('gameSvg').classList.remove('shake'), 400);
+  updateHUD();
+  if (game.lives <= 0) gameOver();
+}
+
+// ============================================================
+// HUD / GAME OVER
+// ============================================================
+function updateHUD() {
+  if (!game) return;
+  document.getElementById('hearts').textContent = '❤'.repeat(Math.max(0, game.lives)) + '🖤'.repeat(Math.max(0, 3 - game.lives));
+  document.getElementById('waveNum').textContent = game.wave;
+  document.getElementById('scoreNum').textContent = game.score;
+}
+
+function showWaveOverlay(n) {
+  document.getElementById('waveOverlayText').textContent = `Welle ${n}`;
+  document.getElementById('waveOverlaySub').textContent = n === 1 ? 'Verteidige die Festung!' : (n % 5 === 0 ? '⚡ Bonusrunde – schnellere Monster!' : 'Bereit?');
+  document.getElementById('waveOverlay').classList.remove('hidden');
+}
+function hideWaveOverlay() { document.getElementById('waveOverlay').classList.add('hidden'); }
+
+function gameOver() {
+  game.over = true;
+  const diff = game.diff;
+  const newBest = game.score > scores[diff];
+  if (newBest) {
+    scores[diff] = game.score;
+  }
+  scores.gamesPlayed = (scores.gamesPlayed || 0) + 1;
+  scores.enemiesKilled = (scores.enemiesKilled || 0) + game.enemiesKilled;
+  saveScores(scores);
+  document.getElementById('finalScore').textContent = game.score;
+  const time = Math.floor((Date.now() - game.startTime) / 1000);
+  document.getElementById('finalStats').innerHTML = `
+    <div>Erreichte Welle: <strong>${game.wave}</strong></div>
+    <div>Vernichtete Monster: <strong>${game.enemiesKilled}</strong></div>
+    <div>Beste Serie: <strong>🔥 ${game.bestCombo}</strong></div>
+    <div>Spielzeit: <strong>${time}s</strong></div>
+    ${newBest ? '<div style="color:#ffc107;margin-top:8px;">🏆 Neuer Highscore!</div>' : ''}
+  `;
+  document.getElementById('gameoverOverlay').classList.remove('hidden');
+}
+
+// ============================================================
+// EVENT BINDINGS
+// ============================================================
+document.getElementById('fireBtn').addEventListener('click', fireAnswer);
+document.getElementById('answerInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); fireAnswer(); }
+});
+
+// Prevent zoom on double-tap (iOS)
+document.addEventListener('touchend', e => {
+  if (e.target.tagName === 'INPUT') return;
+  e.preventDefault();
+}, { passive: false });
+
+renderStart();
+window.startGame = startGame;
+window.quitToMenu = quitToMenu;
+window.pauseGame = pauseGame;
+window.resumeGame = resumeGame;
+window.resetHighScores = resetHighScores;
+</script>
+</body>
+</html>
