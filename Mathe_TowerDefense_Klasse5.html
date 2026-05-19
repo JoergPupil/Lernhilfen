@@ -450,17 +450,21 @@
 // ============================================================
 const STORAGE_KEY = 'mathe_td_v1';
 
+// Zeitkalkulation: bei Spielfeldhöhe 600 (Start y=-40, Basis y=540, also 580 px Weg)
+// und 60 fps: tatsächliche Geschwindigkeit in px/sek = startSpeed * 6 * 60 = startSpeed * 360
+// Beispiel Anfänger Welle 1: 0.08 * 360 = 28,8 px/s → 580/28,8 ≈ 20 Sekunden pro Monster
 const DIFFICULTIES = {
   easy: {
     name: "Anfänger",
     icon: "★",
     desc: "Plus, Minus, kleines Einmaleins",
-    startSpeed: 0.22,          // px per frame (16ms)
-    speedPerWave: 0.025,
+    startSpeed: 0.08,          // ~ 20 Sekunden pro Monster in Welle 1
+    speedPerWave: 0.006,       // wächst langsam
+    maxSpeed: 0.22,            // Obergrenze ~ 7,3 s pro Monster (erst spät erreicht)
     enemiesBase: 3,
     enemiesPerWave: 1,
-    spawnIntervalBase: 2400,   // ms
-    spawnIntervalMin: 1100,
+    spawnIntervalBase: 5000,   // 5 Sekunden Pause zwischen Monstern in Welle 1
+    spawnIntervalMin: 2500,    // selbst spät kommt nur alle 2,5 s ein Monster
     spawnIntervalDec: 80,
     color: "easy",
     badge: "★"
@@ -469,12 +473,13 @@ const DIFFICULTIES = {
     name: "Fortgeschritten",
     icon: "★★",
     desc: "Klammern, Rechengesetze, Negative Zahlen",
-    startSpeed: 0.30,
-    speedPerWave: 0.035,
-    enemiesBase: 4,
+    startSpeed: 0.12,          // ~ 13,5 Sekunden pro Monster in Welle 1
+    speedPerWave: 0.009,
+    maxSpeed: 0.32,            // ~ 5 s pro Monster Obergrenze
+    enemiesBase: 3,
     enemiesPerWave: 1,
-    spawnIntervalBase: 2000,
-    spawnIntervalMin: 900,
+    spawnIntervalBase: 4000,
+    spawnIntervalMin: 1800,
     spawnIntervalDec: 90,
     color: "medium",
     badge: "★★"
@@ -483,12 +488,13 @@ const DIFFICULTIES = {
     name: "Profi",
     icon: "★★★",
     desc: "Größen, Flächen, Volumen, Mehrschritt",
-    startSpeed: 0.40,
-    speedPerWave: 0.045,
-    enemiesBase: 5,
+    startSpeed: 0.17,          // ~ 9,5 Sekunden pro Monster in Welle 1
+    speedPerWave: 0.012,
+    maxSpeed: 0.42,            // ~ 3,8 s Obergrenze
+    enemiesBase: 4,
     enemiesPerWave: 1,
-    spawnIntervalBase: 1700,
-    spawnIntervalMin: 700,
+    spawnIntervalBase: 3200,
+    spawnIntervalMin: 1400,
     spawnIntervalDec: 100,
     color: "hard",
     badge: "★★★"
@@ -511,18 +517,20 @@ function pickWeighted(items, weights) {
 
 const GENERATORS = {
   easy: function() {
+    // Anfänger-Aufgaben mit kleinen Zahlen, damit die Antwort
+    // höchstens 2-stellig wird und schnell tippbar ist.
     const type = pickWeighted(['add', 'sub', 'mul', 'div'], [3, 3, 2, 1]);
     if (type === 'add') {
-      const a = rnd(2, 30), b = rnd(2, 20);
+      const a = rnd(2, 18), b = rnd(2, 12);
       return { text: `${a} + ${b}`, answer: a + b, color: '#4caf50' };
     } else if (type === 'sub') {
-      const a = rnd(10, 40), b = rnd(1, a - 1);
+      const a = rnd(8, 25), b = rnd(1, a - 1);
       return { text: `${a} − ${b}`, answer: a - b, color: '#2196f3' };
     } else if (type === 'mul') {
-      const a = rnd(2, 9), b = rnd(2, 9);
+      const a = rnd(2, 9), b = rnd(2, 8);
       return { text: `${a} · ${b}`, answer: a * b, color: '#ff9800' };
     } else {
-      const b = rnd(2, 9), q = rnd(2, 10);
+      const b = rnd(2, 8), q = rnd(2, 8);
       const a = b * q;
       return { text: `${a} : ${b}`, answer: q, color: '#ffeb3b' };
     }
@@ -530,39 +538,36 @@ const GENERATORS = {
   medium: function() {
     const type = pickWeighted(['add', 'sub', 'mul', 'mix', 'brackets', 'neg'], [2, 2, 2, 3, 2, 2]);
     if (type === 'add') {
-      const a = rnd(15, 80), b = rnd(10, 50);
+      const a = rnd(10, 50), b = rnd(8, 35);
       return { text: `${a} + ${b}`, answer: a + b, color: '#4caf50' };
     } else if (type === 'sub') {
-      const a = rnd(20, 100), b = rnd(5, a - 5);
+      const a = rnd(15, 70), b = rnd(3, a - 3);
       return { text: `${a} − ${b}`, answer: a - b, color: '#2196f3' };
     } else if (type === 'mul') {
-      const a = rnd(3, 12), b = rnd(3, 12);
+      const a = rnd(3, 10), b = rnd(3, 10);
       return { text: `${a} · ${b}`, answer: a * b, color: '#ff9800' };
     } else if (type === 'mix') {
       // Punkt vor Strich
-      const a = rnd(2, 9), b = rnd(2, 8), c = rnd(2, 9);
-      const op = Math.random() < 0.5 ? '+' : '−';
-      const result = op === '+' ? a + b * c : a + b * c; // start with a + b*c
-      // Generate forms: a + b·c  or  a − b·c (avoid negative results)
-      if (op === '+') {
+      const a = rnd(2, 8), b = rnd(2, 7), c = rnd(2, 7);
+      if (Math.random() < 0.5) {
         return { text: `${a} + ${b} · ${c}`, answer: a + b * c, color: '#9c27b0' };
       } else {
-        const big = rnd(b * c + 1, b * c + 20);
+        const big = rnd(b * c + 1, b * c + 15);
         return { text: `${big} − ${b} · ${c}`, answer: big - b * c, color: '#9c27b0' };
       }
     } else if (type === 'brackets') {
-      const a = rnd(2, 8), b = rnd(2, 8), c = rnd(2, 5);
+      const a = rnd(2, 7), b = rnd(2, 7), c = rnd(2, 4);
       return { text: `(${a} + ${b}) · ${c}`, answer: (a + b) * c, color: '#9c27b0' };
     } else { // neg
       const r = Math.random();
       if (r < 0.4) {
-        const a = rnd(3, 15), b = rnd(3, 15);
+        const a = rnd(3, 12), b = rnd(3, 12);
         return { text: `(−${a}) + ${b}`, answer: -a + b, color: '#e91e63' };
       } else if (r < 0.7) {
-        const a = rnd(1, 10), b = rnd(a + 1, a + 12);
+        const a = rnd(1, 8), b = rnd(a + 1, a + 10);
         return { text: `${a} − ${b}`, answer: a - b, color: '#e91e63' };
       } else {
-        const a = rnd(2, 12), b = rnd(2, 8);
+        const a = rnd(2, 10), b = rnd(2, 7);
         return { text: `${a} − (−${b})`, answer: a + b, color: '#e91e63' };
       }
     }
@@ -742,7 +747,9 @@ function spawnEnemy() {
   }
   // Position randomly across width
   const x = rnd(50, 350);
-  const speed = d.startSpeed + (game.wave - 1) * d.speedPerWave;
+  // Geschwindigkeit wächst pro Welle, ist aber durch maxSpeed gedeckelt,
+  // damit das Spiel auch in späten Wellen spielbar bleibt
+  const speed = Math.min(d.maxSpeed, d.startSpeed + (game.wave - 1) * d.speedPerWave);
   game.enemies.push({
     id: game.nextEnemyId++,
     x: x,
