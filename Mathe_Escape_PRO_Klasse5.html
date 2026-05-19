@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathe-Escape PRO – Die Burg des Zauberers Numerix</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    background: radial-gradient(ellipse at 50% 0%, #3a2540 0%, #1a1226 60%, #0a0414 100%);
+    min-height: 100vh;
+    color: #f4e8c8;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+  .castle {
+    max-width: 880px;
+    margin: 0 auto;
+    background: rgba(20, 12, 30, 0.88);
+    border: 3px solid #b08a4a;
+    border-radius: 10px;
+    box-shadow: 0 0 40px rgba(176, 138, 74, 0.3), inset 0 0 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(180deg, #4a2d20 0%, #2d1a14 100%);
+    padding: 18px 26px;
+    border-bottom: 2px solid #b08a4a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header .title-block h1 {
+    font-size: 22px;
+    color: #ffd97a;
+    text-shadow: 2px 2px 0 #2a1a08;
+    margin-bottom: 2px;
+  }
+  header .title-block p { font-size: 12px; color: #c9b58a; font-style: italic; }
+
+  .inventory {
+    display: flex;
+    gap: 16px;
+    background: rgba(0,0,0,0.4);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #5a4020;
+    font-family: -apple-system, sans-serif;
+  }
+  .inv-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #ffd97a;
+  }
+  .inv-item .icon { font-size: 18px; }
+  .inv-item .num { font-weight: bold; font-size: 16px; min-width: 18px; }
+
+  main { padding: 24px 28px; }
+
+  /* Room map */
+  .room-map {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid #5a4020;
+  }
+  .room-pin {
+    text-align: center;
+    font-size: 11px;
+    color: #6a5a40;
+    position: relative;
+    padding: 4px 2px;
+    cursor: default;
+  }
+  .room-pin .icon {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 2px;
+    filter: grayscale(1);
+    opacity: 0.35;
+  }
+  .room-pin.done .icon { filter: none; opacity: 1; }
+  .room-pin.done { color: #ffd97a; }
+  .room-pin.current .icon { filter: none; opacity: 1; animation: pulse 1.5s infinite; }
+  .room-pin.current { color: #ff9d4a; font-weight: bold; }
+  .room-pin.locked .icon { filter: grayscale(1) brightness(0.4); }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+  /* Room content */
+  .room-title {
+    font-size: 24px;
+    color: #ffd97a;
+    text-align: center;
+    margin-bottom: 6px;
+    text-shadow: 1px 1px 0 #1a1208;
+  }
+  .room-sub {
+    text-align: center;
+    color: #c9b58a;
+    font-style: italic;
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+  .story {
+    background: rgba(0,0,0,0.35);
+    border-left: 4px solid #b08a4a;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #ede0bc;
+  }
+  .story em { color: #ffd97a; }
+  .dialog {
+    background: rgba(80, 50, 100, 0.4);
+    border-left: 4px solid #c098e0;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    border-radius: 4px;
+    font-style: italic;
+    font-size: 14px;
+    color: #e8d8f4;
+  }
+  .dialog .speaker { font-style: normal; font-weight: bold; color: #c098e0; margin-right: 6px; }
+  .dialog.mathilda .speaker { color: #ff9d4a; }
+  .dialog.numerix { background: rgba(120, 30, 30, 0.3); border-color: #d04a4a; }
+  .dialog.numerix .speaker { color: #ff7070; }
+  .dialog.owl { background: rgba(50, 80, 50, 0.3); border-color: #80c060; }
+  .dialog.owl .speaker { color: #a8d888; }
+
+  .puzzle {
+    background: rgba(255, 217, 122, 0.06);
+    border: 2px solid #b08a4a;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .puzzle-label {
+    display: inline-block;
+    background: #b08a4a;
+    color: #1a1208;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-family: -apple-system, sans-serif;
+  }
+  .puzzle-counter {
+    float: right;
+    font-size: 12px;
+    color: #c9b58a;
+    font-style: italic;
+    margin-top: 6px;
+  }
+  .puzzle-text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #f4e8c8;
+    margin-bottom: 14px;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .input-row label { font-size: 14px; color: #c9b58a; }
+  input[type="text"] {
+    background: #1a1208;
+    border: 2px solid #5a4020;
+    color: #ffd97a;
+    padding: 10px 14px;
+    font-size: 17px;
+    font-family: "Georgia", serif;
+    border-radius: 6px;
+    width: 160px;
+    text-align: center;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #ffd97a;
+    box-shadow: 0 0 8px rgba(255, 217, 122, 0.3);
+  }
+  button.action {
+    background: linear-gradient(180deg, #d4a050, #a87830);
+    color: #1a1208;
+    border: 2px solid #ffd97a;
+    padding: 10px 20px;
+    font-family: "Georgia", serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  button.action:hover { background: linear-gradient(180deg, #ffd97a, #d4a050); transform: translateY(-1px); }
+  button.action:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.ghost {
+    background: transparent;
+    color: #c9b58a;
+    border: 1px solid #5a4020;
+    padding: 7px 12px;
+    font-family: "Georgia", serif;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-style: italic;
+  }
+  button.ghost:hover { color: #ffd97a; border-color: #ffd97a; }
+  button.ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.danger {
+    background: rgba(180, 60, 50, 0.3);
+    color: #ffaaaa;
+    border: 1px solid #c8503c;
+    padding: 7px 14px;
+    font-family: "Georgia", serif;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  button.danger:hover { background: rgba(220, 80, 70, 0.4); }
+
+  .feedback {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .feedback.ok { background: rgba(120, 200, 100, 0.15); border-left: 4px solid #78c864; color: #b8f0a8; }
+  .feedback.bad { background: rgba(200, 80, 60, 0.15); border-left: 4px solid #c8503c; color: #ff9a8a; }
+  .feedback.reward { background: rgba(255, 217, 122, 0.15); border-left: 4px solid #ffd97a; color: #ffd97a; }
+
+  .hint-area {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .hint-box {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255, 217, 122, 0.08);
+    border-left: 3px solid #ffd97a;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #ede0bc;
+    font-style: italic;
+  }
+  .hint-box.premium { border-color: #c098e0; background: rgba(150, 100, 200, 0.1); }
+  .hidden { display: none !important; }
+  .attempts { font-size: 12px; color: #c9b58a; margin-top: 6px; font-style: italic; }
+
+  /* Start / Continue screen */
+  .start, .win { text-align: center; padding: 10px 0; }
+  .start h2, .win h2 {
+    font-size: 28px;
+    color: #ffd97a;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 0 #1a1208;
+  }
+  .start p { line-height: 1.6; margin: 10px 0; font-size: 15px; color: #ede0bc; max-width: 640px; margin-left: auto; margin-right: auto; }
+  .dragon {
+    font-size: 70px;
+    margin: 14px 0;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .start-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+  .start-actions button { font-size: 16px; padding: 12px 24px; }
+
+  /* Characters intro */
+  .char-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .char-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #5a4020;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .char-card .face { font-size: 36px; margin-bottom: 6px; }
+  .char-card .name { color: #ffd97a; font-weight: bold; font-size: 14px; }
+  .char-card .role { font-size: 12px; color: #c9b58a; font-style: italic; margin-top: 4px; line-height: 1.4; }
+
+  /* Win screen */
+  .crown { font-size: 60px; margin: 16px 0; }
+  .certificate {
+    background: linear-gradient(135deg, #fff4d4 0%, #f5e0a0 100%);
+    color: #5a4020;
+    padding: 24px 22px;
+    margin: 16px auto;
+    max-width: 520px;
+    border: 3px double #5a4020;
+    border-radius: 8px;
+    font-family: "Georgia", serif;
+  }
+  .certificate h3 { color: #5a4020; font-size: 20px; margin-bottom: 6px; }
+  .certificate p { color: #5a4020; font-size: 14px; line-height: 1.5; }
+
+  /* Between-room screen */
+  .transition {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .transition h2 { color: #78c864; font-size: 22px; margin-bottom: 12px; }
+  .reward-box {
+    display: inline-block;
+    background: rgba(255, 217, 122, 0.15);
+    border: 2px solid #ffd97a;
+    padding: 16px 26px;
+    border-radius: 10px;
+    margin: 14px 0;
+  }
+  .reward-box .got { font-size: 36px; margin-bottom: 6px; }
+  .reward-box .label { color: #ffd97a; font-size: 14px; }
+
+  footer {
+    padding: 12px 28px;
+    text-align: center;
+    font-size: 11px;
+    color: #6a5a40;
+    border-top: 1px solid #3a2a14;
+    font-style: italic;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer .save-info { font-size: 11px; }
+  footer button {
+    background: transparent;
+    border: 0;
+    color: #6a5a40;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 11px;
+  }
+  footer button:hover { color: #ffd97a; }
+</style>
+</head>
+<body>
+<div class="castle">
+  <header>
+    <div class="title-block">
+      <h1>⚔ Burg des Zauberers Numerix ⚔</h1>
+      <p>Ein Mathe-Escape-Abenteuer · 12 Räume · Klasse 5</p>
+    </div>
+    <div class="inventory" id="inventory" style="display:none;">
+      <div class="inv-item"><span class="icon">🪙</span><span class="num" id="invCoins">0</span></div>
+      <div class="inv-item"><span class="icon">🗝</span><span class="num" id="invKeys">0</span></div>
+      <div class="inv-item"><span class="icon">💎</span><span class="num" id="invGems">0</span></div>
+    </div>
+  </header>
+  <main id="screen"></main>
+  <footer>
+    <span class="save-info" id="saveInfo">Dein Fortschritt wird automatisch gespeichert.</span>
+    <button onclick="confirmReset()">Spielstand löschen</button>
+  </footer>
+</div>
+
+<script>
+// ============================================================
+// 12 RÄUME × ~3 RÄTSEL = ~36 Aufgaben
+// ============================================================
+const ROOMS = [
+  // RAUM 1
+  {
+    icon: "🚪",
+    title: "Raum 1: Das Burgtor",
+    sub: "Thema: Natürliche Zahlen – Stellenwert & Vergleich",
+    story: `Du stehst vor einem riesigen, mit goldenen Runen verzierten Burgtor. <em>Mathilda</em>, die kleine Drachin, klopft von innen verzweifelt gegen das Tor.`,
+    dialogs: [
+      { who: 'Mathilda', cls: 'mathilda', text: "Hilf mir! Numerix hat mich verzaubert – nur wer alle 12 Räume meistert, kann mich befreien." },
+      { who: 'Numerix', cls: 'numerix', text: "Hahaha! Ein Fünftklässler? Dann viel Spaß mit meinen Rätseln, kleiner Wanderer!" }
+    ],
+    puzzles: [
+      {
+        text: `Auf einer Steintafel am Tor steht die Zahl: <em style="font-size:22px">5.832</em>. Daneben die Inschrift: <em>„Sprich meine Tausender-Ziffer und das Tor öffnet sich."</em>`,
+        hint1: "Die Stellen von rechts: 2 (Einer), 3 (Zehner), 8 (Hunderter), 5 (Tausender).",
+        hint2: "Die Tausender-Ziffer ist die vierte Stelle von rechts. Sie steht ganz vorne in einer vierstelligen Zahl.",
+        solution: "5",
+        success: "Das Tor knarrt auf. Ein leiser Drachen-Jubel ertönt von oben."
+      },
+      {
+        text: `Ein zweites Schloss hält das Tor. Vier Zahlen leuchten auf: <em>743 · 437 · 374 · 734</em>. <br>„Wähle die kleinste Zahl. Trage sie ein."`,
+        hint1: "Vergleiche die Hunderter-Ziffern: 7, 4, 3, 7.",
+        hint2: "Die kleinste Hunderter-Ziffer ist die 3 – also ist 374 die kleinste Zahl.",
+        solution: "374",
+        success: "Klick! Das zweite Schloss springt auf."
+      }
+    ],
+    rewards: { coins: 2, keys: 1, gems: 1 },
+    complete: "Das Burgtor schwingt vollständig auf. Du betrittst die Halle der Drachenburg."
+  },
+
+  // RAUM 2
+  {
+    icon: "📜",
+    title: "Raum 2: Die Hauptbibliothek",
+    sub: "Thema: Natürliche Zahlen – Römische Zahlen & Runden",
+    story: `Eine riesige Bibliothek mit staubigen Büchern. In der Mitte steht ein altes Buch, dessen Cover-Datum in römischen Ziffern eingebrannt ist.`,
+    dialogs: [
+      { who: 'Eule Pythagoras', cls: 'owl', text: "Schuhuhuhu… Ich bin Pythagoras, die weise Eule. Ich helfe dir gerne – aber mein Wissen kostet manchmal eine Münze." }
+    ],
+    puzzles: [
+      {
+        text: `Auf dem Buch steht das Erscheinungsjahr in römischen Ziffern: <em style="font-size:22px">MCMLXXX</em>. <br>In welchem Jahr wurde das Buch geschrieben?`,
+        hint1: "M = 1000. CM = 900 (1000 − 100). LXXX = 80 (50 + 30).",
+        hint2: "M (1000) + CM (900) + LXXX (80) = 1980.",
+        solution: "1980",
+        success: "Das Buch öffnet sich von selbst."
+      },
+      {
+        text: `Im Buch steht eine Aufgabe: <em>„Runde die Zahl 2.347 auf den nächsten Tausender."</em>`,
+        hint1: "Schau die Hunderter-Ziffer an: 3.",
+        hint2: "Da 3 < 5 → abrunden → 2.000.",
+        solution: "2000",
+        success: "Die Seiten flüstern: „Gut gerundet!\""
+      },
+      {
+        text: `Eine letzte Seite zeigt eine Zahlenfolge: <em>2, 5, 8, 11, 14, …</em><br>Welche Zahl folgt als nächste?`,
+        hint1: "Welcher Abstand liegt zwischen je zwei Zahlen?",
+        hint2: "Die Regel ist +3. Also 14 + 3 = 17.",
+        solution: "17",
+        success: "Das Buch leuchtet golden auf und gibt eine geheime Treppe frei."
+      }
+    ],
+    rewards: { coins: 3, gems: 1 },
+    complete: "Du steigst die Treppe empor in den nächsten Raum."
+  },
+
+  // RAUM 3
+  {
+    icon: "🪞",
+    title: "Raum 3: Die Spiegelkammer",
+    sub: "Thema: Figuren – Symmetrie & Würfel",
+    story: `Wände aus Spiegeln umgeben dich. Dein Spiegelbild zeigt dir seltsame Buchstaben in der Luft schwebend.`,
+    dialogs: [
+      { who: 'Mathilda', cls: 'mathilda', text: "Hier hat Numerix viele meiner Schätze versteckt. Sei wachsam!" }
+    ],
+    puzzles: [
+      {
+        text: `Folgende Buchstaben schweben im Raum: <em>F · A · G · Z</em>. <br>Welcher Buchstabe ist <strong>achsensymmetrisch</strong> (kann an einer Geraden gespiegelt werden)? Trage den Buchstaben ein.`,
+        hint1: "Stell dir eine senkrechte Spiegelachse durch jeden Buchstaben vor.",
+        hint2: "A hat eine senkrechte Symmetrieachse durch die Spitze.",
+        solution: "A",
+        success: "Der Spiegel reagiert auf den Buchstaben und zeigt einen neuen Weg."
+      },
+      {
+        text: `Ein magischer Würfel schwebt in der Mitte. Auf ihm steht: <em>„Zähle meine Ecken, Kanten und Flächen und sage die Summe."</em>`,
+        hint1: "Ein Würfel hat 8 Ecken, 12 Kanten, 6 Flächen.",
+        hint2: "8 + 12 + 6 = 26.",
+        solution: "26",
+        success: "Der Würfel zerfällt zu Goldstaub. Du steckst etwas davon ein."
+      },
+      {
+        text: `Im Spiegel siehst du den Buchstaben „S\". Welche Art von Symmetrie hat dieser Buchstabe? <br><em>(Trage „Achsensymmetrie\" oder „Punktsymmetrie\" ein.)</em>`,
+        hint1: "Drehe ihn in Gedanken um 180°.",
+        hint2: "S sieht nach Drehung um 180° genauso aus → Punktsymmetrie.",
+        solution: "Punktsymmetrie",
+        success: "Eine versteckte Tür öffnet sich knarrend."
+      }
+    ],
+    rewards: { coins: 2, gems: 1 },
+    complete: "Die Spiegel verblassen. Eine glitzernde Brücke führt dich weiter."
+  },
+
+  // RAUM 4
+  {
+    icon: "🧭",
+    title: "Raum 4: Das Geometrie-Labyrinth",
+    sub: "Thema: Figuren und Körper – Vierecke & Koordinaten",
+    story: `Du betrittst ein Labyrinth mit hohen Hecken. An verschiedenen Stellen schweben Schilder mit geometrischen Rätseln.`,
+    puzzles: [
+      {
+        text: `Welches Viereck hat <strong>4 gleich lange Seiten UND 4 rechte Winkel</strong>?<br><em>Antwort: Rechteck, Raute, Quadrat, Trapez oder Parallelogramm?</em>`,
+        hint1: "Beide Eigenschaften müssen gelten.",
+        hint2: "Das Quadrat ist sowohl Rechteck als auch Raute zugleich.",
+        solution: "Quadrat",
+        success: "Die Hecke teilt sich und gibt einen Pfad frei."
+      },
+      {
+        text: `Auf dem Boden ist ein Koordinatensystem gezeichnet. Mathilda ruft: <em>„Geh zu Punkt P(5|3)!"</em> – Wie viele Schritte musst du <strong>nach oben</strong> gehen? (Du startest am Nullpunkt.)`,
+        hint1: "Erst x (waagerecht), dann y (senkrecht).",
+        hint2: "P(5|3) heißt: 5 nach rechts, 3 nach oben. Die Frage ist nach „oben\" = 3.",
+        solution: "3",
+        success: "Ein blauer Schmetterling erscheint und führt dich weiter."
+      },
+      {
+        text: `Vor dir steht eine <strong>quadratische Pyramide</strong>. Wie viele <strong>Flächen</strong> hat sie?`,
+        hint1: "Sie hat eine quadratische Bodenfläche.",
+        hint2: "1 Quadrat (unten) + 4 Dreiecke (Seiten) = 5 Flächen.",
+        solution: "5",
+        success: "Die Pyramide hebt sich und legt einen Schatz frei!"
+      }
+    ],
+    rewards: { coins: 3, keys: 1, gems: 2 },
+    complete: "Das Labyrinth löst sich auf. Ein Drachen-Brüllen ist von oben zu hören."
+  },
+
+  // RAUM 5
+  {
+    icon: "🗼",
+    title: "Raum 5: Der Rechenturm",
+    sub: "Thema: Rechengesetze – Klammer & Punkt vor Strich",
+    story: `Ein hoher Turm mit Wendeltreppe. An jeder Stufe ist eine Rechenaufgabe eingemeißelt. Nur wer alle löst, kommt nach oben.`,
+    dialogs: [
+      { who: 'Numerix', cls: 'numerix', text: "Du wirst dich an meinen Rechnungen verschlucken! Klammer zuerst? Punkt vor Strich? Hahaha!" }
+    ],
+    puzzles: [
+      {
+        text: `Erste Stufe – berechne: <br><em style="font-size:22px;color:#ffd97a">3 + 4 · 2</em>`,
+        hint1: "Punkt vor Strich!",
+        hint2: "Erst 4 · 2 = 8, dann 3 + 8 = 11.",
+        solution: "11",
+        success: "Die Stufe leuchtet auf. Weiter!"
+      },
+      {
+        text: `Zweite Stufe: <br><em style="font-size:22px;color:#ffd97a">(8 + 4) · 3 − 6 : 2</em>`,
+        hint1: "Klammer zuerst → 8+4=12. Punkt vor Strich → 12·3=36 und 6:2=3.",
+        hint2: "Am Ende: 36 − 3 = 33.",
+        solution: "33",
+        success: "Du hörst Numerix wütend brüllen."
+      },
+      {
+        text: `Letzte Stufe: <br><em style="font-size:22px;color:#ffd97a">20 − 5 · (6 − 2)</em>`,
+        hint1: "Klammer zuerst: 6 − 2 = 4.",
+        hint2: "Dann 5 · 4 = 20. Schließlich 20 − 20 = 0.",
+        solution: "0",
+        success: "Du stehst auf der obersten Plattform des Turms."
+      }
+    ],
+    rewards: { coins: 3, gems: 2 },
+    complete: "Eine Brücke verbindet den Turm mit dem nächsten Saal."
+  },
+
+  // RAUM 6
+  {
+    icon: "✨",
+    title: "Raum 6: Der Distributiv-Saal",
+    sub: "Thema: Rechengesetze – Geschicktes Rechnen",
+    story: `Ein prunkvoller Saal mit goldenen Säulen. Auf jeder Säule schwebt eine Rechenaufgabe – aber die Lösungen müssen klug gefunden werden.`,
+    dialogs: [
+      { who: 'Eule Pythagoras', cls: 'owl', text: "Schuhu… Das Distributivgesetz ist dein Freund. Es macht große Aufgaben klein." }
+    ],
+    puzzles: [
+      {
+        text: `Eine Säule zeigt: <em style="font-size:18px;color:#ffd97a">7 · 99</em><br>Tipp: Schreibe 99 = 100 − 1 und nutze das Distributivgesetz.`,
+        hint1: "7 · 99 = 7 · (100 − 1) = 7·100 − 7·1.",
+        hint2: "= 700 − 7 = 693.",
+        solution: "693",
+        success: "Die Säule leuchtet golden auf."
+      },
+      {
+        text: `Nächste Säule: <em style="font-size:18px;color:#ffd97a">25 · 16</em><br>Tipp: 16 = 10 + 6.`,
+        hint1: "25 · 16 = 25 · 10 + 25 · 6.",
+        hint2: "= 250 + 150 = 400.",
+        solution: "400",
+        success: "Du spürst die Magie der Verteilungsregel."
+      },
+      {
+        text: `Die letzte Säule fragt: Welches Rechengesetz beschreibt diese Gleichheit? <br><em>7 + 5 = 5 + 7</em><br>Trage „Kommutativgesetz\", „Assoziativgesetz\" oder „Distributivgesetz\" ein.`,
+        hint1: "Die Reihenfolge wurde getauscht.",
+        hint2: "Reihenfolge tauschen = Vertauschungs- = Kommutativgesetz.",
+        solution: "Kommutativgesetz",
+        success: "Alle Säulen erstrahlen gleichzeitig."
+      }
+    ],
+    rewards: { coins: 4, gems: 1 },
+    complete: "Eine Tür aus reinem Gold öffnet sich."
+  },
+
+  // RAUM 7
+  {
+    icon: "🏪",
+    title: "Raum 7: Der Markt der Einheiten",
+    sub: "Thema: Größen – Längen, Gewichte, Geld",
+    story: `Ein bunter Marktplatz! Händler bieten dir Waren an – aber nur, wenn du die Größen richtig umrechnest.`,
+    dialogs: [
+      { who: 'Mathilda', cls: 'mathilda', text: "Pass auf, manche Händler versuchen, dich auszutricksen!" }
+    ],
+    puzzles: [
+      {
+        text: `Ein Stoffhändler verkauft Stoff in Metern. Du hast einen Faden von <em>250 cm</em>. <br>Wie viele Meter sind das? <em>(Trage als Dezimalzahl ein, z. B. „1,5\".)</em>`,
+        hint1: "1 m = 100 cm. Also durch 100 teilen.",
+        hint2: "250 : 100 = 2,5 m.",
+        solution: "2,5",
+        success: "Der Stoffhändler nickt zufrieden."
+      },
+      {
+        text: `Beim Bäcker: Er fragt: <em>„Wie viele Gramm sind 2 kg Mehl?"</em>`,
+        hint1: "1 kg = 1.000 g.",
+        hint2: "2 · 1.000 = 2.000 g.",
+        solution: "2000",
+        success: "Der Bäcker schenkt dir ein duftendes Brot."
+      },
+      {
+        text: `An der Münzwechsel-Stube: Du gibst 4,75 €. Wie viele Cent sind das?`,
+        hint1: "1 € = 100 ct.",
+        hint2: "4 € = 400 ct. Plus 75 ct = 475 ct.",
+        solution: "475",
+        success: "Die Münzen klimpern in die Wechselschale."
+      }
+    ],
+    rewards: { coins: 5, gems: 1 },
+    complete: "Mit vollem Beutel verlässt du den Markt durch eine Holztür."
+  },
+
+  // RAUM 8
+  {
+    icon: "⏰",
+    title: "Raum 8: Die Werkstatt der Zeit",
+    sub: "Thema: Größen – Zeitumrechnung",
+    story: `Eine Werkstatt voller tickender Uhren. In der Mitte steht eine riesige Sanduhr.`,
+    puzzles: [
+      {
+        text: `Auf der Sanduhr steht: <em>„Wandle 2 h 30 min in Minuten um."</em>`,
+        hint1: "1 h = 60 min. Also 2 h = 120 min.",
+        hint2: "120 + 30 = 150 min.",
+        solution: "150",
+        success: "Die Sanduhr dreht sich von selbst um."
+      },
+      {
+        text: `Eine Wanduhr fragt: <em>„Wie viele Sekunden hat 1 Stunde?"</em>`,
+        hint1: "1 h = 60 min, und 1 min = 60 s.",
+        hint2: "60 · 60 = 3.600 s.",
+        solution: "3600",
+        success: "Die Uhrzeiger drehen sich rückwärts und öffnen ein Geheimfach."
+      },
+      {
+        text: `Letztes Rätsel: <em>„Ein Film beginnt um 18:30 Uhr und dauert 1 h 45 min. Wann endet er?\" Trage die Uhrzeit als Zahl ein, z. B. „20:15\"."</em>`,
+        hint1: "Stunden zuerst: 18:30 + 1 h = 19:30.",
+        hint2: "19:30 + 45 min = 20:15 Uhr.",
+        solution: "20:15",
+        success: "Die Werkstatt verblasst. Du gehst weiter."
+      }
+    ],
+    rewards: { coins: 4, keys: 1, gems: 2 },
+    complete: "Eine schmale Eistreppe führt nach unten in eine Eishöhle."
+  },
+
+  // RAUM 9
+  {
+    icon: "❄",
+    title: "Raum 9: Die Eishöhle",
+    sub: "Thema: Ganze Zahlen – Vorzeichen & Vergleich",
+    story: `Eiskalter Wind weht. Die Wände sind aus blauem Eis. Ein Thermometer zeigt eine sinkende Temperatur.`,
+    dialogs: [
+      { who: 'Numerix', cls: 'numerix', text: "Frierst du schon, Kleiner? Negative Zahlen sind eiskalt – und hier bin ich besonders fies!" }
+    ],
+    puzzles: [
+      {
+        text: `Das Thermometer zeigt <em>−5 °C</em>. Die Temperatur sinkt um <em>4 °C</em>. <br>Welche Temperatur ist nun erreicht? <em>(Mit Minuszeichen, falls negativ.)</em>`,
+        hint1: "−5 − 4 = −5 + (−4).",
+        hint2: "Beide Vorzeichen gleich → Beträge addieren → −9.",
+        solution: "-9",
+        success: "Eis bricht auf und gibt einen Pfad frei."
+      },
+      {
+        text: `Ein Schild zeigt drei Höhen: <em>−12 m, −5 m, −20 m</em> (alle unter dem Meeresspiegel). <br>Welche Zahl ist <strong>die größte</strong>?`,
+        hint1: "Auf der Zahlengeraden: weiter rechts = größer.",
+        hint2: "Die Zahl mit dem kleinsten Betrag ist am größten: −5 ist am weitesten rechts → −5.",
+        solution: "-5",
+        success: "Eine Eisluke öffnet sich nach oben."
+      },
+      {
+        text: `Mathildas Schatzkonto zeigt: <em>−30 Goldmünzen</em>. Numerix zwingt sie, weitere <em>15 Goldmünzen</em> zu zahlen. <br>Wie viele Münzen hat sie nun? <em>(Mit Vorzeichen.)</em>`,
+        hint1: "Weitere Münzen zahlen heißt: noch mehr Schulden.",
+        hint2: "−30 − 15 = −45.",
+        solution: "-45",
+        success: "Du siehst, wie unfair Numerix ist. Vorwärts!"
+      }
+    ],
+    rewards: { coins: 3, gems: 2 },
+    complete: "Eine geheime Tür im Eis öffnet sich zur tiefen Grotte."
+  },
+
+  // RAUM 10
+  {
+    icon: "🧊",
+    title: "Raum 10: Die tiefe Eisgrotte",
+    sub: "Thema: Ganze Zahlen – Komplexe Rechnungen",
+    story: `Tiefer und kälter wird es. Eiszapfen hängen wie Schwerter von der Decke. Hier wartet die schwerste Prüfung mit ganzen Zahlen.`,
+    puzzles: [
+      {
+        text: `Berechne: <em style="font-size:20px;color:#ffd97a">(−8) + 15 − (−3)</em>`,
+        hint1: "−8 + 15 = 7. Dann 7 − (−3) = 7 + 3.",
+        hint2: "= 10.",
+        solution: "10",
+        success: "Ein Eiszapfen fällt und enthüllt ein Geheimfach."
+      },
+      {
+        text: `Auf einem Eisblock steht: <em>„Konto −50 €, dann Einzahlung 80 €, dann Abhebung 20 €. Wie viel ist auf dem Konto?\" (Mit Vorzeichen.)</em>`,
+        hint1: "−50 + 80 = 30. Dann 30 − 20 = ?",
+        hint2: "30 − 20 = 10 €.",
+        solution: "10",
+        success: "Das Eis schmilzt langsam."
+      },
+      {
+        text: `Letzte Aufgabe: <em style="font-size:20px;color:#ffd97a">5 − 12 + (−4) − (−6)</em>`,
+        hint1: "Schritt für Schritt: 5−12 = −7. −7 + (−4) = −11.",
+        hint2: "−11 − (−6) = −11 + 6 = −5.",
+        solution: "-5",
+        success: "Die Grotte öffnet sich nach oben in eine helle Werkstatt."
+      }
+    ],
+    rewards: { coins: 4, keys: 1, gems: 3 },
+    complete: "Du verlässt die Eisgrotte. Die Wärme tut gut!"
+  },
+
+  // RAUM 11
+  {
+    icon: "📏",
+    title: "Raum 11: Die Werkstatt der Flächen",
+    sub: "Thema: Flächeninhalte & Umfang",
+    story: `Eine Werkstatt mit Plänen und Lineal. Auf einem Tisch liegt ein Bauplan für einen geheimen Schatz – aber er muss berechnet werden.`,
+    puzzles: [
+      {
+        text: `Ein <strong>Rechteck</strong> ist a = 8 m lang und b = 5 m breit. <br>Berechne den <strong>Flächeninhalt</strong> in m². <em>(Nur die Zahl eintragen.)</em>`,
+        hint1: "Formel: A = a · b.",
+        hint2: "A = 8 · 5 = 40 m².",
+        solution: "40",
+        success: "Der Plan beginnt zu glühen."
+      },
+      {
+        text: `Ein <strong>Quadrat</strong> hat die Seitenlänge a = 7 cm. <br>Wie groß ist sein <strong>Umfang</strong> in cm?`,
+        hint1: "Umfang Quadrat: U = 4 · a.",
+        hint2: "4 · 7 = 28 cm.",
+        solution: "28",
+        success: "Du markierst die richtige Antwort auf dem Plan."
+      },
+      {
+        text: `Wie viele cm² sind 1 dm²?`,
+        hint1: "1 dm = 10 cm. Beide Seiten umrechnen.",
+        hint2: "10 cm · 10 cm = 100 cm². Bei Flächen rechnet man mit 100 um.",
+        solution: "100",
+        success: "Der Plan zeigt nun den Weg zur Schatzkammer!"
+      }
+    ],
+    rewards: { coins: 4, gems: 2 },
+    complete: "Mit dem fertigen Plan eilst du zur Schatzkammer."
+  },
+
+  // RAUM 12 - BOSS RAUM
+  {
+    icon: "👑",
+    title: "Raum 12: Die Schatzkammer",
+    sub: "Thema: Volumen & kombinierte Aufgaben (Boss-Raum!)",
+    story: `Du erreichst die Schatzkammer. In der Mitte steht eine riesige goldene Truhe in Quaderform. Daneben sitzt Numerix selbst – er erwartet dich!`,
+    dialogs: [
+      { who: 'Numerix', cls: 'numerix', text: "DU?! Du hast es bis hierher geschafft? Dann zeig mir, dass du auch das HÄRTESTE Rätsel lösen kannst!" },
+      { who: 'Mathilda', cls: 'mathilda', text: "Ich glaube an dich! Nur noch drei Rätsel und ich bin frei!" }
+    ],
+    puzzles: [
+      {
+        text: `Die Truhe hat die Maße: <em>Länge 4 m · Breite 3 m · Höhe 2 m</em>. <br>Berechne das <strong>Volumen</strong> in m³.`,
+        hint1: "Formel: V = a · b · c.",
+        hint2: "V = 4 · 3 · 2 = 24 m³.",
+        solution: "24",
+        success: "Numerix verzieht das Gesicht. Die Truhe bebt."
+      },
+      {
+        text: `Daneben steht ein <strong>würfelförmiges</strong> Aquarium mit Kantenlänge <em>a = 5 dm</em>. <br>Wie viele <strong>Liter</strong> Wasser passen hinein? <br><em>(Erinnerung: 1 dm³ = 1 Liter.)</em>`,
+        hint1: "Volumen Würfel: V = a · a · a.",
+        hint2: "5 · 5 · 5 = 125 dm³ = 125 Liter.",
+        solution: "125",
+        success: "Numerix wird blass."
+      },
+      {
+        text: `<strong>Boss-Rätsel:</strong> Mathildas magische Schatzkette besteht aus <em>4 großen Goldmünzen</em> (jede 25 g) und <em>6 kleinen Goldmünzen</em> (jede 8 g). <br>Wie schwer ist die ganze Kette in Gramm? <em>(Wende die Rechenreihenfolge geschickt an.)</em>`,
+        hint1: "4 · 25 + 6 · 8 (Punkt vor Strich).",
+        hint2: "100 + 48 = 148 g.",
+        solution: "148",
+        success: "NUMERIX ZERFÄLLT ZU SCHWARZEM STAUB! Du hast es geschafft!"
+      }
+    ],
+    rewards: { coins: 10, keys: 1, gems: 5 },
+    complete: "Die Truhe öffnet sich. Ein gleißendes goldenes Licht durchflutet die Halle. Mathilda ist FREI!"
+  }
+];
+
+// ============================================================
+// SAVE/LOAD
+// ============================================================
+const STORAGE_KEY = 'matheescape_pro_v1';
+
+function newGameState() {
+  return {
+    currentRoom: 0,
+    currentPuzzle: 0,
+    coins: 0,
+    keys: 0,
+    gems: 0,
+    hintsUsedFree: {},  // {puzzleKey: true}
+    hintsUsedPaid: {},  // {puzzleKey: true}
+    attempts: 0,
+    totalAttempts: 0,
+    completedPuzzles: [], // ['0-0', '0-1', ...]
+    completedRooms: [],
+    started: false,
+    won: false,
+    startedAt: null
+  };
+}
+
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return newGameState();
+    return Object.assign(newGameState(), JSON.parse(raw));
+  } catch (e) { return newGameState(); }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  updateInventory();
+}
+function confirmReset() {
+  if (!confirm('Wirklich den ganzen Spielstand löschen? Du beginnst dann wieder im Raum 1.')) return;
+  state = newGameState();
+  saveState();
+  document.getElementById('inventory').style.display = 'none';
+  renderStart();
+}
+
+function updateInventory() {
+  if (state.started && !state.won) {
+    document.getElementById('inventory').style.display = 'flex';
+  } else {
+    document.getElementById('inventory').style.display = 'none';
+  }
+  document.getElementById('invCoins').textContent = state.coins;
+  document.getElementById('invKeys').textContent = state.keys;
+  document.getElementById('invGems').textContent = state.gems;
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+const screen = document.getElementById('screen');
+
+function renderStart() {
+  const hasSave = state.started && !state.won;
+  const continueBtn = hasSave ? `<button class="action" id="continueBtn">⚔ Spiel fortsetzen (Raum ${state.currentRoom + 1})</button>` : '';
+  screen.innerHTML = `
+    <div class="start">
+      <h2>Die Burg des Zauberers Numerix</h2>
+      <div class="dragon">🐉</div>
+      <p>
+        Der böse Zauberer <strong>Numerix</strong> hat die kleine Drachin <strong>Mathilda</strong>
+        in seine 12-stöckige Burg entführt. Nur wer alle Räume meistert, kann sie befreien!
+      </p>
+      <p>
+        In jedem Raum warten Mathe-Rätsel – Stellenwerte, Geometrie, Rechengesetze,
+        Größen, ganze Zahlen, Flächen und Volumen. Sammle Münzen, Schlüssel und Edelsteine.
+      </p>
+      <h3 style="color:#ffd97a;margin:18px 0 6px;font-size:16px;">Deine Begleiter</h3>
+      <div class="char-row">
+        <div class="char-card">
+          <div class="face">🐉</div>
+          <div class="name">Mathilda</div>
+          <div class="role">die kleine Drachin – wartet auf deine Rettung</div>
+        </div>
+        <div class="char-card">
+          <div class="face">🧙‍♂️</div>
+          <div class="name">Numerix</div>
+          <div class="role">böser Zauberer – stellt dir die Rätsel</div>
+        </div>
+        <div class="char-card">
+          <div class="face">🦉</div>
+          <div class="name">Pythagoras</div>
+          <div class="role">weise Eule – hat Tipps für Münzen</div>
+        </div>
+      </div>
+      <div class="start-actions">
+        ${continueBtn}
+        <button class="action" id="newBtn">${hasSave ? 'Neu beginnen' : '🚀 Abenteuer starten'}</button>
+      </div>
+      <p style="font-size:13px;color:#c9b58a;margin-top:14px;">
+        Dein Fortschritt wird automatisch gespeichert. Du kannst jederzeit das Spiel schließen und später weitermachen.
+      </p>
+    </div>
+  `;
+  if (continueBtn) document.getElementById('continueBtn').onclick = () => { renderRoom(); };
+  document.getElementById('newBtn').onclick = () => {
+    if (hasSave && !confirm('Spielstand wird überschrieben. Wirklich neu starten?')) return;
+    state = newGameState();
+    state.started = true;
+    state.startedAt = Date.now();
+    saveState();
+    renderRoom();
+  };
+}
+
+function renderRoom() {
+  if (state.currentRoom >= ROOMS.length) {
+    state.won = true;
+    saveState();
+    renderWin();
+    return;
+  }
+  state.started = true;
+  state.attempts = 0;
+  saveState();
+
+  const room = ROOMS[state.currentRoom];
+
+  // Falls alle Puzzles dieses Raums schon abgehakt sind, sofort weiter
+  if (state.currentPuzzle >= room.puzzles.length) {
+    renderRoomComplete();
+    return;
+  }
+
+  // Render Karte
+  const mapHTML = ROOMS.map((r, i) => {
+    let cls = 'locked';
+    if (i < state.currentRoom) cls = 'done';
+    else if (i === state.currentRoom) cls = 'current';
+    return `<div class="room-pin ${cls}" title="${r.title}">
+      <span class="icon">${r.icon}</span>${i + 1}
+    </div>`;
+  }).join('');
+
+  // Dialoge nur beim ersten Puzzle eines Raums anzeigen
+  const dialogHTML = state.currentPuzzle === 0 && room.dialogs ?
+    room.dialogs.map(d => `<div class="dialog ${d.cls}"><span class="speaker">${d.who}:</span>${d.text}</div>`).join('')
+    : '';
+
+  // Story nur beim ersten Puzzle
+  const storyHTML = state.currentPuzzle === 0 ?
+    `<div class="story">${room.story}</div>` : '';
+
+  const puzzle = room.puzzles[state.currentPuzzle];
+  const puzzleKey = `${state.currentRoom}-${state.currentPuzzle}`;
+  const freeHintShown = state.hintsUsedFree[puzzleKey];
+  const paidHintShown = state.hintsUsedPaid[puzzleKey];
+
+  screen.innerHTML = `
+    <div class="room-map">${mapHTML}</div>
+    <h2 class="room-title">${room.title}</h2>
+    <p class="room-sub">${room.sub}</p>
+    ${storyHTML}
+    ${dialogHTML}
+    <div class="puzzle">
+      <span class="puzzle-label">RÄTSEL ${state.currentPuzzle + 1}</span>
+      <span class="puzzle-counter">Raum ${state.currentRoom + 1} von ${ROOMS.length} · Aufgabe ${state.currentPuzzle + 1} von ${room.puzzles.length}</span>
+      <div style="clear:both"></div>
+      <div class="puzzle-text">${puzzle.text}</div>
+      <div class="input-row">
+        <label for="answer">Deine Antwort:</label>
+        <input type="text" id="answer" autocomplete="off" placeholder="?">
+        <button class="action" id="submitBtn">Antworten 🗝</button>
+      </div>
+      <div class="attempts" id="attemptsLabel"></div>
+      <div class="hint-area">
+        ${freeHintShown ? '' : '<button class="ghost" id="hint1Btn">💡 Gratis-Tipp</button>'}
+        ${paidHintShown ? '' : `<button class="ghost" id="hint2Btn" ${state.coins < 1 ? 'disabled' : ''}>🪙 Detail-Tipp (1 Münze)</button>`}
+      </div>
+      ${freeHintShown ? `<div class="hint-box">${puzzle.hint1}</div>` : ''}
+      ${paidHintShown ? `<div class="hint-box premium">${puzzle.hint2}</div>` : ''}
+      <div id="feedback"></div>
+    </div>
+  `;
+
+  const input = document.getElementById('answer');
+  input.focus();
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
+  document.getElementById('submitBtn').onclick = checkAnswer;
+
+  const h1 = document.getElementById('hint1Btn');
+  if (h1) h1.onclick = () => { state.hintsUsedFree[puzzleKey] = true; saveState(); renderRoom(); };
+
+  const h2 = document.getElementById('hint2Btn');
+  if (h2) h2.onclick = () => {
+    if (state.coins < 1) return;
+    state.coins--;
+    state.hintsUsedPaid[puzzleKey] = true;
+    saveState();
+    renderRoom();
+  };
+}
+
+function normalize(s) {
+  return String(s).trim().replace(/\s+/g, '').replace(/°c$/i, '').replace(/,/g, '.').toLowerCase();
+}
+
+function checkAnswer() {
+  const room = ROOMS[state.currentRoom];
+  const puzzle = room.puzzles[state.currentPuzzle];
+  const userAnswer = document.getElementById('answer').value;
+  const fb = document.getElementById('feedback');
+
+  state.attempts++;
+  state.totalAttempts++;
+  saveState();
+
+  if (normalize(userAnswer) === normalize(puzzle.solution)) {
+    // Richtig
+    state.completedPuzzles.push(`${state.currentRoom}-${state.currentPuzzle}`);
+    fb.innerHTML = `<div class="feedback ok">✓ ${puzzle.success}</div>
+      <div style="text-align:right;margin-top:12px;">
+        <button class="action" id="nextPuzzleBtn">${
+          state.currentPuzzle + 1 < room.puzzles.length ? 'Nächstes Rätsel →' : 'Raum verlassen 🚪'
+        }</button>
+      </div>`;
+    document.getElementById('answer').disabled = true;
+    document.getElementById('submitBtn').disabled = true;
+    document.querySelectorAll('.hint-area button').forEach(b => b.disabled = true);
+    document.getElementById('nextPuzzleBtn').onclick = () => {
+      state.currentPuzzle++;
+      state.attempts = 0;
+      saveState();
+      if (state.currentPuzzle >= room.puzzles.length) renderRoomComplete();
+      else renderRoom();
+    };
+  } else {
+    fb.innerHTML = `<div class="feedback bad">✗ Das stimmt noch nicht. Schaue dir die Aufgabe noch einmal genau an.</div>`;
+    document.getElementById('attemptsLabel').textContent = `Versuche bei diesem Rätsel: ${state.attempts}`;
+    // Nach 2 falschen Versuchen automatisch den Gratis-Tipp zeigen
+    const puzzleKey = `${state.currentRoom}-${state.currentPuzzle}`;
+    if (state.attempts >= 2 && !state.hintsUsedFree[puzzleKey]) {
+      state.hintsUsedFree[puzzleKey] = true;
+      saveState();
+      renderRoom();
+      const showFb = document.getElementById('feedback');
+      if (showFb) showFb.innerHTML = `<div class="feedback bad">✗ Versuch's nochmal. Ich zeige dir einen Gratis-Tipp.</div>`;
+    } else {
+      document.getElementById('answer').focus();
+      document.getElementById('answer').select();
+    }
+  }
+}
+
+function renderRoomComplete() {
+  const room = ROOMS[state.currentRoom];
+  const rewards = room.rewards || {};
+  // Belohnungen verteilen (nur einmal pro Raum)
+  if (!state.completedRooms.includes(state.currentRoom)) {
+    state.coins += rewards.coins || 0;
+    state.keys += rewards.keys || 0;
+    state.gems += rewards.gems || 0;
+    state.completedRooms.push(state.currentRoom);
+  }
+  saveState();
+
+  const rewardItems = [];
+  if (rewards.coins) rewardItems.push(`<div class="reward-box"><div class="got">🪙 +${rewards.coins}</div><div class="label">Münzen</div></div>`);
+  if (rewards.keys) rewardItems.push(`<div class="reward-box"><div class="got">🗝 +${rewards.keys}</div><div class="label">Schlüssel</div></div>`);
+  if (rewards.gems) rewardItems.push(`<div class="reward-box"><div class="got">💎 +${rewards.gems}</div><div class="label">Edelsteine</div></div>`);
+
+  screen.innerHTML = `
+    <div class="transition">
+      <h2>✓ Raum ${state.currentRoom + 1} gemeistert!</h2>
+      <div class="story" style="text-align:left;">${room.complete}</div>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:18px 0;">
+        ${rewardItems.join('')}
+      </div>
+      <button class="action" id="nextRoomBtn" style="font-size:16px;padding:12px 24px;">
+        ${state.currentRoom + 1 < ROOMS.length ? `Raum ${state.currentRoom + 2}: ${ROOMS[state.currentRoom + 1].icon} ${ROOMS[state.currentRoom + 1].title.split(':')[1].trim()} →` : 'Sieg-Bildschirm anzeigen 👑'}
+      </button>
+      <p style="margin-top:14px;font-size:13px;color:#c9b58a;">
+        Du kannst hier auch eine Pause machen – dein Spielstand ist gespeichert.
+      </p>
+    </div>
+  `;
+  document.getElementById('nextRoomBtn').onclick = () => {
+    state.currentRoom++;
+    state.currentPuzzle = 0;
+    state.attempts = 0;
+    saveState();
+    renderRoom();
+  };
+}
+
+function renderWin() {
+  state.won = true;
+  saveState();
+  const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+  screen.innerHTML = `
+    <div class="win">
+      <h2>🎉 DU HAST DIE BURG BEZWUNGEN! 🎉</h2>
+      <div class="crown">👑</div>
+      <p style="font-size:16px;line-height:1.6;color:#ede0bc;max-width:580px;margin:0 auto;">
+        Numerix ist besiegt. Mathilda umarmt dich mit ihren kleinen Drachenflügeln
+        und schenkt dir die <strong>Urkunde der Mathe-Meisterschaft</strong>:
+      </p>
+      <div class="certificate">
+        <h3>🏆 Urkunde 🏆</h3>
+        <p style="margin:8px 0;font-style:italic;">Hiermit wird bestätigt, dass</p>
+        <p style="font-size:18px;font-weight:bold;margin:8px 0;">der/die mutige Mathe-Held(in)</p>
+        <p style="margin:8px 0;">alle <strong>12 verzauberten Räume</strong> der Burg des Zauberers Numerix gemeistert hat.</p>
+        <p style="margin:14px 0 6px;">Gesamtversuche: <strong>${state.totalAttempts}</strong></p>
+        <p style="margin:6px 0;">Gesammelt: <strong>🪙 ${state.coins}</strong> Münzen · <strong>🗝 ${state.keys}</strong> Schlüssel · <strong>💎 ${state.gems}</strong> Edelsteine</p>
+        <p style="font-size:13px;color:#7a5a30;margin-top:10px;">Burg-Siegel · ${today}</p>
+      </div>
+      <p style="color:#ffd97a;font-size:15px;margin-top:18px;">
+        Du beherrschst nun alle 6 Themen der Klassenarbeit. 🐉✨
+      </p>
+      <div style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="action" id="restartBtn">Neues Abenteuer starten</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('restartBtn').onclick = () => {
+    if (!confirm('Möchtest du das Abenteuer von vorne starten? Dein bisheriger Erfolg bleibt in der Urkunde sichtbar.')) return;
+    state = newGameState();
+    state.started = true;
+    state.startedAt = Date.now();
+    saveState();
+    renderRoom();
+  };
+}
+
+// ============================================================
+// INIT
+// ============================================================
+updateInventory();
+if (state.won) {
+  renderWin();
+} else if (state.started) {
+  renderRoom();
+} else {
+  renderStart();
+}
+window.renderStart = renderStart;
+window.confirmReset = confirmReset;
+</script>
+</body>
+</html>

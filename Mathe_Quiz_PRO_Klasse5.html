@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathe-Quiz PRO – Klasse 5</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, #e0f0ff 0%, #f4f9ff 100%);
+    min-height: 100vh;
+    color: #1a2540;
+    padding: 20px;
+  }
+  .app {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,30,80,0.08);
+    overflow: hidden;
+  }
+  header {
+    background: #2a5b9c;
+    color: #fff;
+    padding: 22px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 { font-size: 22px; margin-bottom: 2px; }
+  header p { opacity: 0.85; font-size: 13px; }
+  header .stats-mini {
+    text-align: right;
+    font-size: 12px;
+    opacity: 0.9;
+  }
+  header .stats-mini strong { font-size: 16px; }
+  main { padding: 26px 28px; }
+
+  h2 { font-size: 20px; color: #2a5b9c; margin-bottom: 14px; }
+  h3 { font-size: 16px; color: #1a2540; margin: 18px 0 10px; }
+  p { line-height: 1.5; }
+
+  /* Cards / Tiles */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .card {
+    border: 2px solid #cfd9e8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: #fff;
+    text-align: left;
+    font-family: inherit;
+    font-size: 15px;
+    color: #1a2540;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .card:hover { border-color: #2a5b9c; background: #f0f6ff; }
+  .card.mix { background: #fff4dd; border-color: #f0c060; }
+  .card.mix:hover { background: #ffe9b8; }
+  .card .icon { font-size: 22px; margin-right: 8px; vertical-align: middle; }
+  .card .name { font-weight: 600; }
+  .card .sub { font-size: 12px; color: #6b7a93; margin-top: 4px; }
+  .card .stars-row {
+    margin-top: 8px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .card .star-on { color: #f5a623; }
+  .card .star-off { color: #dde3ec; }
+  .card .pct {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: #2a5b9c;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .card .pct.zero { background: #cfd9e8; color: #6b7a93; }
+
+  /* Mode buttons */
+  .modes { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .mode-btn {
+    border: 2px solid #cfd9e8;
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    background: #fff;
+    text-align: left;
+    font-family: inherit;
+    font-size: 15px;
+    color: #1a2540;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .mode-btn:hover { border-color: #2a5b9c; background: #f0f6ff; }
+  .mode-btn .mode-icon {
+    font-size: 28px;
+    width: 40px;
+    text-align: center;
+  }
+  .mode-btn .mode-text { flex: 1; }
+  .mode-btn .mode-name { font-weight: 700; margin-bottom: 2px; }
+  .mode-btn .mode-desc { font-size: 13px; color: #6b7a93; }
+
+  /* Filter row */
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 14px 0;
+    padding: 14px;
+    background: #f4f9ff;
+    border-radius: 10px;
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 12px; color: #6b7a93; font-weight: 600; }
+  .filter-group select, .filter-group input {
+    border: 1px solid #cfd9e8;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .diff-pills { display: flex; gap: 6px; }
+  .diff-pills button {
+    border: 2px solid #cfd9e8;
+    background: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1a2540;
+  }
+  .diff-pills button.active {
+    background: #2a5b9c;
+    color: #fff;
+    border-color: #2a5b9c;
+  }
+
+  /* Progress / quiz */
+  .progress-bar {
+    height: 8px;
+    background: #e8eef7;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #66bb6a);
+    width: 0%;
+    transition: width 0.3s;
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #6b7a93;
+  }
+  .meta-row .score { font-weight: 700; color: #2a5b9c; font-size: 15px; }
+  .topic-label {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #e8eef7;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #2a5b9c;
+    margin-right: 8px;
+  }
+  .diff-label {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #fff4dd;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #8a6500;
+    margin-bottom: 14px;
+  }
+  .timer-label {
+    color: #d05050;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .question {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 18px;
+    color: #1a2540;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    padding: 13px 16px;
+    border: 2px solid #cfd9e8;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.12s;
+    color: #1a2540;
+  }
+  .option:hover:not(:disabled) { border-color: #2a5b9c; background: #f0f6ff; }
+  .option:disabled { cursor: default; }
+  .option.correct { border-color: #4caf50; background: #e8f5e9; color: #1b5e20; font-weight: 600; }
+  .option.wrong { border-color: #e57373; background: #ffeded; color: #b71c1c; }
+  .option.dimmed { opacity: 0.5; }
+
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border-left: 5px solid;
+    line-height: 1.5;
+  }
+  .feedback.correct { background: #f1faf2; border-color: #4caf50; color: #1b5e20; }
+  .feedback.wrong { background: #fff4f4; border-color: #e57373; color: #5a1a1a; }
+  .feedback strong { display: block; margin-bottom: 4px; font-size: 15px; }
+  .feedback .explain { font-size: 14px; }
+
+  .btn-row { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+  button.primary {
+    background: #2a5b9c;
+    color: #fff;
+    padding: 11px 22px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  button.primary:hover { background: #1f4880; }
+  button.primary:disabled { background: #cfd9e8; cursor: not-allowed; }
+  button.secondary {
+    background: #fff;
+    color: #2a5b9c;
+    padding: 11px 18px;
+    border: 2px solid #2a5b9c;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+  }
+  button.secondary:hover { background: #f0f6ff; }
+  button.subtle {
+    background: transparent;
+    color: #6b7a93;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    padding: 4px 0;
+    font-family: inherit;
+  }
+  button.subtle:hover { color: #2a5b9c; }
+  .hint-box {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #fffaef;
+    border-left: 4px solid #f0c060;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #5d4a1a;
+  }
+  .hidden { display: none !important; }
+
+  /* End / Stats */
+  .end { text-align: center; padding: 12px 0; }
+  .end h2 { font-size: 24px; margin-bottom: 8px; }
+  .end .score-big {
+    font-size: 44px;
+    font-weight: 800;
+    color: #4caf50;
+    margin: 12px 0 4px;
+  }
+  .end .pct-text { color: #6b7a93; margin-bottom: 12px; }
+  .end .stars { font-size: 30px; letter-spacing: 6px; margin: 10px 0; }
+  .end .msg { font-size: 15px; color: #1a2540; margin-bottom: 18px; line-height: 1.5; }
+  .end .wrong-list {
+    text-align: left;
+    background: #fff4f4;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 16px auto;
+    max-width: 580px;
+    border: 1px solid #ffcccc;
+  }
+  .end .wrong-list h3 { color: #b71c1c; font-size: 14px; margin: 0 0 8px; }
+  .end .wrong-list ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+
+  /* Stats screen */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .stat-tile {
+    background: #f4f9ff;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-tile .big {
+    font-size: 28px;
+    font-weight: 800;
+    color: #2a5b9c;
+    display: block;
+  }
+  .stat-tile .small { font-size: 12px; color: #6b7a93; margin-top: 2px; }
+  .topic-stats {
+    margin-top: 16px;
+    border: 1px solid #e8eef7;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .topic-stat-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f4fa;
+    align-items: center;
+    font-size: 14px;
+  }
+  .topic-stat-row.head {
+    background: #f4f9ff;
+    font-weight: 700;
+    color: #2a5b9c;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .topic-stat-row:last-child { border-bottom: 0; }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e8eef7;
+  }
+  .breadcrumb {
+    font-size: 13px;
+    color: #6b7a93;
+  }
+  .breadcrumb span { cursor: pointer; }
+  .breadcrumb span:hover { color: #2a5b9c; text-decoration: underline; }
+
+  footer {
+    padding: 14px 28px;
+    text-align: center;
+    font-size: 12px;
+    color: #97a3b8;
+    border-top: 1px solid #eef2f7;
+  }
+  footer button {
+    background: transparent;
+    border: 0;
+    color: #97a3b8;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  footer button:hover { color: #2a5b9c; }
+
+  /* Streak badge */
+  .streak-badge {
+    background: #ff9800;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Mathe-Quiz PRO – Klasse 5</h1>
+      <p>Vollständige Vorbereitung · Lambacher Schweizer</p>
+    </div>
+    <div class="stats-mini" id="headerStats"></div>
+  </header>
+  <main id="screen"></main>
+  <footer>
+    <span id="footerInfo">Tipp: Dein Fortschritt wird automatisch gespeichert.</span>
+    &nbsp;·&nbsp;
+    <button onclick="resetAllData()">Statistik zurücksetzen</button>
+  </footer>
+</div>
+
+<script>
+// ============================================================
+// FRAGEN-DATENBANK – 150 Fragen, 6 Themen × 25 Fragen × 3 Schwierigkeiten
+// ============================================================
+const TOPICS = {
+  zahlen: {
+    name: "Natürliche Zahlen",
+    icon: "🔢",
+    questions: [
+      // ★ Leicht
+      { q: "Welche Ziffer steht in 583 an der Hunderter-Stelle?", opt: ["3", "5", "8", "583"], ok: 1, d: 1,
+        ex: "Die Stellen von rechts: 3 = Einer, 8 = Zehner, 5 = Hunderter.",
+        hint: "Stellenwerte von rechts: Einer → Zehner → Hunderter." },
+      { q: "Wie viele Nullen hat 1.000?", opt: ["2", "3", "4", "5"], ok: 1, d: 1,
+        ex: "1.000 = 1 Tausend = 1 mit 3 Nullen.", hint: "Schreibe die Zahl auf und zähle." },
+      { q: "Was kommt direkt nach 99?", opt: ["100", "1000", "98", "90"], ok: 0, d: 1,
+        ex: "99 + 1 = 100.", hint: "Eins dazuzählen." },
+      { q: "Welches Zeichen ist richtig: 8 ___ 5?", opt: ["<", ">", "=", "≠"], ok: 1, d: 1,
+        ex: "8 ist größer als 5, also 8 > 5.", hint: "Welche Zahl ist größer?" },
+      { q: "Welche Zahl liest man „dreihundertfünf\"?", opt: ["35", "305", "350", "3.005"], ok: 1, d: 1,
+        ex: "300 + 5 = 305. Die 5 steht an der Einer-Stelle.", hint: "Hunderter + Einer." },
+      { q: "Welche römische Zahl bedeutet 10?", opt: ["V", "X", "L", "C"], ok: 1, d: 1,
+        ex: "X = 10, V = 5, L = 50, C = 100.", hint: "Die einfachste römische Zahl mit zwei Strichen." },
+      { q: "Welche Folge passt zu „immer +2\": 2, 4, 6, 8, …?", opt: ["9", "10", "12", "16"], ok: 1, d: 1,
+        ex: "8 + 2 = 10.", hint: "Schau dir die Abstände an." },
+      { q: "Welche Ziffer steht in 47 an der Einer-Stelle?", opt: ["4", "7", "1", "47"], ok: 1, d: 1,
+        ex: "Die Einer-Stelle ist immer ganz rechts: 7.", hint: "Ganz rechts in der Zahl." },
+      // ★★ Mittel
+      { q: "Welche Ziffer steht in 47.583 an der Hunderter-Stelle?", opt: ["7", "5", "4", "3"], ok: 1, d: 2,
+        ex: "Von rechts: 3 (E), 8 (Z), 5 (H), 7 (T), 4 (ZT).", hint: "Stellen von rechts zählen: 3. Stelle." },
+      { q: "Runde 347 auf Zehner.", opt: ["340", "350", "300", "400"], ok: 1, d: 2,
+        ex: "Die Ziffer rechts neben den Zehnern ist 7. 7 ≥ 5 → aufrunden → 350.", hint: "Schau auf die Einer." },
+      { q: "Runde 1.234 auf Hunderter.", opt: ["1.000", "1.100", "1.200", "1.300"], ok: 2, d: 2,
+        ex: "Ziffer rechts neben Hundertern: 3. Weil 3 < 5 → abrunden → 1.200.", hint: "Schau auf die Zehner-Ziffer." },
+      { q: "Was bedeutet die römische Zahl XIV?", opt: ["6", "14", "16", "24"], ok: 1, d: 2,
+        ex: "X (10) + IV (4) = 14. IV bedeutet 5 − 1 = 4.", hint: "X = 10, IV = 4." },
+      { q: "Was bedeutet XL?", opt: ["15", "40", "60", "90"], ok: 1, d: 2,
+        ex: "X (10) vor L (50) bedeutet 50 − 10 = 40.", hint: "Kleines Zeichen vor großem = abziehen." },
+      { q: "Wie geht die Folge weiter: 3, 6, 9, 12, …?", opt: ["13", "14", "15", "18"], ok: 2, d: 2,
+        ex: "Regel: immer +3. 12 + 3 = 15.", hint: "Wie viel kommt jeweils dazu?" },
+      { q: "Welches Zeichen passt: 348 ___ 384?", opt: ["<", ">", "=", "≠"], ok: 0, d: 2,
+        ex: "Hunderter gleich (3). Zehner: 4 < 8 → 348 ist kleiner.", hint: "Vergleiche von links nach rechts." },
+      { q: "Welche Zahl liest man „zwei Millionen dreitausend\"?", opt: ["2.003", "23.000", "2.003.000", "2.300.000"], ok: 2, d: 2,
+        ex: "2 Millionen = 2.000.000. Dazu 3.000. Ergibt 2.003.000.", hint: "Achtung: Tausend, nicht Hundert." },
+      { q: "Welche Zahl ist die größte?", opt: ["9.999", "10.000", "9.099", "9.909"], ok: 1, d: 2,
+        ex: "10.000 hat 5 Stellen, die anderen nur 4 – also ist 10.000 am größten.", hint: "Welche Zahl hat die meisten Stellen?" },
+      { q: "Welches Diagramm zeigt eine Entwicklung über die Zeit am besten?", opt: ["Säulendiagramm", "Balkendiagramm", "Liniendiagramm", "Kreisdiagramm"], ok: 2, d: 2,
+        ex: "Das Liniendiagramm (Strichdiagramm) verbindet Punkte – ideal für Entwicklungen.", hint: "Welches verbindet Punkte mit Linien?" },
+      // ★★★ Schwer
+      { q: "Wie viele Stellen hat 1 Milliarde?", opt: ["7", "9", "10", "12"], ok: 2, d: 3,
+        ex: "1 Milliarde = 1.000.000.000 = 1 mit 9 Nullen → insgesamt 10 Stellen.", hint: "1 plus 9 Nullen." },
+      { q: "Was bedeutet die römische Zahl MCMXC?", opt: ["1090", "1990", "2090", "1190"], ok: 1, d: 3,
+        ex: "M(1000) + CM(900) + XC(90) = 1990.", hint: "CM = 1000 − 100, XC = 100 − 10." },
+      { q: "Welche Zahl ist 1 weniger als 1 Million?", opt: ["100.000", "999.000", "999.999", "1.000.001"], ok: 2, d: 3,
+        ex: "1.000.000 − 1 = 999.999.", hint: "Eins zurück von 1 Mio." },
+      { q: "Welche Zahl liegt genau in der Mitte zwischen 250 und 350?", opt: ["275", "290", "300", "325"], ok: 2, d: 3,
+        ex: "(250 + 350) : 2 = 600 : 2 = 300.", hint: "Mittelwert: (a+b):2." },
+      { q: "Runde 9.499 auf Tausender.", opt: ["9.000", "9.400", "9.500", "10.000"], ok: 0, d: 3,
+        ex: "Hunderter-Ziffer ist 4 (< 5) → abrunden → 9.000.", hint: "Schau auf die Hunderter-Stelle." },
+      { q: "Wie geht weiter: 1, 3, 6, 10, 15, …?", opt: ["18", "20", "21", "25"], ok: 2, d: 3,
+        ex: "Abstände: +2, +3, +4, +5, +6 → 15 + 6 = 21.", hint: "Die Abstände werden größer." },
+      { q: "Welche römische Zahl bedeutet 99?", opt: ["IC", "XCIX", "LXXXXIX", "IL"], ok: 1, d: 3,
+        ex: "99 = 90 + 9 = XC + IX = XCIX. (IC ist nicht erlaubt.)", hint: "90 und 9 zusammen." }
+    ]
+  },
+  figuren: {
+    name: "Figuren und Körper",
+    icon: "📐",
+    questions: [
+      // ★ Leicht
+      { q: "Wie viele Ecken hat ein Würfel?", opt: ["4", "6", "8", "12"], ok: 2, d: 1,
+        ex: "Ein Würfel hat 8 Ecken.", hint: "Stell dir einen Spielwürfel vor." },
+      { q: "Wie viele Flächen hat ein Würfel?", opt: ["4", "6", "8", "12"], ok: 1, d: 1,
+        ex: "Sechs gleiche Quadratflächen.", hint: "Zähle die Seiten eines Spielwürfels (1-6)." },
+      { q: "Welches Symbol bedeutet „parallel\"?", opt: ["⊥", "∥", "∠", "≈"], ok: 1, d: 1,
+        ex: "∥ (zwei Striche) = parallel. ⊥ = senkrecht.", hint: "Zwei nebeneinander stehende Striche." },
+      { q: "Welches Symbol bedeutet „senkrecht\"?", opt: ["⊥", "∥", "∠", "≈"], ok: 0, d: 1,
+        ex: "⊥ = senkrecht (90°-Winkel).", hint: "Ein Strich, der auf einem anderen steht." },
+      { q: "Wie viele gleich lange Seiten hat ein Quadrat?", opt: ["2", "3", "4", "0"], ok: 2, d: 1,
+        ex: "Alle 4 Seiten sind gleich lang.", hint: "Schau ein Quadrat genau an." },
+      { q: "Welcher Buchstabe ist achsensymmetrisch?", opt: ["F", "G", "A", "Z"], ok: 2, d: 1,
+        ex: "A hat eine senkrechte Spiegelachse.", hint: "Welcher Buchstabe sieht links und rechts gleich aus?" },
+      { q: "Ist die x-Achse waagerecht oder senkrecht?", opt: ["waagerecht", "senkrecht", "schräg", "kreisförmig"], ok: 0, d: 1,
+        ex: "Die x-Achse verläuft waagerecht (von links nach rechts).", hint: "x kommt im Alphabet vor y → liegt unten." },
+      { q: "Wie viele Kanten hat ein Würfel?", opt: ["6", "8", "10", "12"], ok: 3, d: 1,
+        ex: "Ein Würfel hat 12 Kanten.", hint: "4 oben + 4 unten + 4 vertikal." },
+      // ★★ Mittel
+      { q: "Wie viele Flächen hat ein Quader?", opt: ["4", "5", "6", "8"], ok: 2, d: 2,
+        ex: "Ein Quader hat 6 Rechteck-Flächen (wie eine Schuhschachtel).", hint: "Schuhschachtel zählen." },
+      { q: "Wo liegt der Punkt P(4|2)?", opt: ["4 nach oben, 2 nach rechts", "4 nach rechts, 2 nach oben", "2 nach rechts, 4 nach oben", "links unten"], ok: 1, d: 2,
+        ex: "Reihenfolge bei (x|y): erst x (waagerecht), dann y (senkrecht).", hint: "Erst x, dann y." },
+      { q: "Welche Figur hat 4 gleich lange Seiten UND 4 rechte Winkel?", opt: ["Rechteck", "Raute", "Quadrat", "Trapez"], ok: 2, d: 2,
+        ex: "Nur das Quadrat hat beides.", hint: "Beide Eigenschaften zusammen." },
+      { q: "Welche Figur hat 4 gleich lange Seiten, aber nicht unbedingt rechte Winkel?", opt: ["Quadrat", "Raute", "Rechteck", "Trapez"], ok: 1, d: 2,
+        ex: "Die Raute hat 4 gleiche Seiten, die Winkel müssen aber nicht 90° sein.", hint: "Wie ein „schräges Quadrat\"." },
+      { q: "Wie viele parallele Seiten hat ein Trapez mindestens?", opt: ["0", "1", "2", "4"], ok: 2, d: 2,
+        ex: "Ein Trapez hat mindestens 2 parallele Seiten.", hint: "Schau auf die Definition." },
+      { q: "Wie viele Ecken hat eine quadratische Pyramide?", opt: ["4", "5", "6", "8"], ok: 1, d: 2,
+        ex: "4 Ecken unten + 1 Spitze oben = 5.", hint: "Grundfläche + Spitze." },
+      { q: "Wie viele Flächen hat eine quadratische Pyramide?", opt: ["4", "5", "6", "8"], ok: 1, d: 2,
+        ex: "1 Quadrat (Boden) + 4 Dreiecke (Seiten) = 5.", hint: "Grundfläche + Seitenflächen." },
+      { q: "Wie viele ebene (flache) Flächen hat ein Zylinder?", opt: ["0", "1", "2", "3"], ok: 2, d: 2,
+        ex: "Boden und Deckel sind 2 Kreisflächen. Der Mantel ist gekrümmt.", hint: "Boden und Deckel zählen." },
+      { q: "Welcher Buchstabe ist punktsymmetrisch?", opt: ["A", "S", "T", "U"], ok: 1, d: 2,
+        ex: "S sieht nach 180°-Drehung genauso aus.", hint: "Welcher Buchstabe ist auf dem Kopf gleich?" },
+      { q: "Welcher Punkt liegt auf der x-Achse?", opt: ["(0|5)", "(3|0)", "(3|3)", "(-2|2)"], ok: 1, d: 2,
+        ex: "Ein Punkt liegt auf der x-Achse, wenn y = 0.", hint: "y-Koordinate muss 0 sein." },
+      // ★★★ Schwer
+      { q: "Wie viele Ecken hat eine dreiseitige Pyramide (Tetraeder)?", opt: ["3", "4", "5", "6"], ok: 1, d: 3,
+        ex: "3 Ecken unten + 1 Spitze = 4 Ecken.", hint: "Dreieck-Basis + Spitze." },
+      { q: "Wie viele Kanten hat eine dreiseitige Pyramide?", opt: ["4", "5", "6", "8"], ok: 2, d: 3,
+        ex: "3 Kanten am Boden + 3 nach oben zur Spitze = 6 Kanten.", hint: "Boden-Dreieck plus Seitenkanten." },
+      { q: "Ist ein Rechteck immer auch ein Parallelogramm?", opt: ["Ja, immer", "Nein, nie", "Nur manchmal", "Nur wenn es ein Quadrat ist"], ok: 0, d: 3,
+        ex: "Ja: ein Rechteck hat parallele gegenüberliegende Seiten → Parallelogramm.", hint: "Sind die gegenüberliegenden Seiten parallel?" },
+      { q: "Wenn der Punkt P(a|3) auf der y-Achse liegt, was ist a?", opt: ["3", "0", "−3", "1"], ok: 1, d: 3,
+        ex: "Auf der y-Achse ist x = 0, also a = 0.", hint: "x-Koordinate auf der y-Achse?" },
+      { q: "Welche Symmetrie hat ein Parallelogramm (das kein Rechteck ist)?", opt: ["Achsensymmetrie", "Punktsymmetrie", "Beides", "Keine"], ok: 1, d: 3,
+        ex: "Ein „schiefes\" Parallelogramm ist punktsymmetrisch (um den Mittelpunkt), aber nicht achsensymmetrisch.", hint: "Drehe es um 180°." },
+      { q: "Wie viele Symmetrieachsen hat ein Quadrat?", opt: ["2", "3", "4", "8"], ok: 2, d: 3,
+        ex: "2 durch die Seitenmitten + 2 durch die Diagonalen = 4 Achsen.", hint: "Senkrecht, waagerecht, beide Diagonalen." },
+      { q: "Wie viele Ecken hat ein Kegel?", opt: ["0", "1", "2", "4"], ok: 1, d: 3,
+        ex: "Nur die Spitze ist eine Ecke.", hint: "Boden ist ein Kreis, oben ist…" }
+    ]
+  },
+  rechnen: {
+    name: "Rechengesetze",
+    icon: "➕",
+    questions: [
+      // ★ Leicht
+      { q: "Was ist 5 + 3?", opt: ["7", "8", "9", "15"], ok: 1, d: 1, ex: "5 + 3 = 8.", hint: "Im Kopf zusammenzählen." },
+      { q: "Was ist 6 · 7?", opt: ["13", "36", "42", "48"], ok: 2, d: 1, ex: "6-mal 7 = 42 (kleines Einmaleins).", hint: "6er-Reihe: 6, 12, 18, 24, 30, 36, 42." },
+      { q: "Was ist 20 : 4?", opt: ["4", "5", "6", "16"], ok: 1, d: 1, ex: "20 : 4 = 5, weil 5 · 4 = 20.", hint: "Wie oft passt 4 in 20?" },
+      { q: "Wie heißt das Ergebnis von 4 + 5?", opt: ["Summe", "Differenz", "Produkt", "Quotient"], ok: 0, d: 1, ex: "Bei + heißt das Ergebnis Summe.", hint: "Plus = Summe." },
+      { q: "Wie heißt das Ergebnis von 4 · 5?", opt: ["Summe", "Differenz", "Produkt", "Quotient"], ok: 2, d: 1, ex: "Bei · heißt das Ergebnis Produkt.", hint: "Mal = Produkt." },
+      { q: "Was wird zuerst gerechnet?", opt: ["Klammer", "Plus", "Minus", "Strich"], ok: 0, d: 1, ex: "Klammer zuerst, dann Punkt vor Strich.", hint: "Höchste Priorität." },
+      { q: "Was kommt vor Strichrechnung?", opt: ["Klammer", "Punktrechnung", "Subtraktion", "Addition"], ok: 1, d: 1, ex: "„Punkt vor Strich\" – mal und geteilt zuerst.", hint: "Mal und geteilt zuerst." },
+      { q: "Was ist 7 + 7?", opt: ["13", "14", "15", "17"], ok: 1, d: 1, ex: "7 + 7 = 14 (Verdopplung).", hint: "Doppelte Zahl." },
+      // ★★ Mittel
+      { q: "Was ist 3 + 4 · 2?", opt: ["14", "11", "10", "24"], ok: 1, d: 2, ex: "Punkt zuerst: 4·2 = 8. Dann 3+8 = 11.", hint: "Punkt vor Strich!" },
+      { q: "Was ist (3 + 4) · 2?", opt: ["14", "11", "10", "9"], ok: 0, d: 2, ex: "Klammer zuerst: 3+4 = 7. Dann 7·2 = 14.", hint: "Klammer zuerst." },
+      { q: "Was ist 20 − 6 : 2?", opt: ["7", "10", "14", "17"], ok: 3, d: 2, ex: "Punkt zuerst: 6:2 = 3. Dann 20−3 = 17.", hint: "Division zuerst." },
+      { q: "Welches Gesetz: 7 + 3 = 3 + 7?", opt: ["Kommutativ", "Assoziativ", "Distributiv", "Klammer"], ok: 0, d: 2, ex: "Kommutativ = Vertauschungsgesetz.", hint: "Reihenfolge wird getauscht." },
+      { q: "Welches Gesetz: (7 + 3) + 5 = 7 + (3 + 5)?", opt: ["Kommutativ", "Assoziativ", "Distributiv", "Klammer"], ok: 1, d: 2, ex: "Assoziativ = Klammern umsetzen.", hint: "Klammern werden umsortiert." },
+      { q: "Welches Gesetz: 4 · (5 + 3) = 4·5 + 4·3?", opt: ["Kommutativ", "Assoziativ", "Distributiv", "Klammer"], ok: 2, d: 2, ex: "Distributiv = Ausmultiplizieren der Klammer.", hint: "Klammer wird „verteilt\"." },
+      { q: "Was ist 7 · 102 (geschickt rechnen)?", opt: ["714", "742", "742", "770"], ok: 0, d: 2, ex: "7·100 + 7·2 = 700 + 14 = 714.", hint: "Distributivgesetz: 102 = 100 + 2." },
+      { q: "Was ist 13 − 5?", opt: ["7", "8", "9", "18"], ok: 1, d: 2, ex: "13 − 5 = 8 (Differenz).", hint: "8 + 5 = 13." },
+      { q: "Wie heißt die 13 in der Rechnung 13 − 5?", opt: ["Minuend", "Subtrahend", "Differenz", "Quotient"], ok: 0, d: 2, ex: "13 = Minuend (vorne), 5 = Subtrahend, 8 = Differenz.", hint: "Steht VOR dem Minus." },
+      { q: "Wie heißt die 5 in der Rechnung 20 : 5?", opt: ["Dividend", "Divisor", "Quotient", "Faktor"], ok: 1, d: 2, ex: "20 = Dividend, 5 = Divisor, 4 = Quotient.", hint: "Durch was geteilt wird." },
+      // ★★★ Schwer
+      { q: "Was ist 5 · (8 + 4) − 6 : 2?", opt: ["27", "30", "57", "63"], ok: 2, d: 3, ex: "Klammer: 8+4=12. Punkt: 5·12=60, 6:2=3. Strich: 60−3=57.", hint: "Klammer, Punkt, Strich." },
+      { q: "Was ist (12 − 4) · (3 + 2)?", opt: ["28", "32", "40", "50"], ok: 2, d: 3, ex: "Klammern: 8 und 5. Dann 8·5 = 40.", hint: "Beide Klammern getrennt." },
+      { q: "Was ist 4 + 6 · 3 − 8 : 4?", opt: ["7", "20", "22", "25"], ok: 1, d: 3, ex: "Punkt: 6·3=18, 8:4=2. Dann: 4+18−2 = 20.", hint: "Erst alle Mal/Geteilt." },
+      { q: "Was ist 25 · 16 (mit Distributiv: 25·10 + 25·6)?", opt: ["350", "400", "410", "440"], ok: 1, d: 3, ex: "25·10=250, 25·6=150. Summe: 400.", hint: "16 = 10 + 6." },
+      { q: "Was ist 3 · 4 + 5 · 6?", opt: ["42", "48", "54", "72"], ok: 0, d: 3, ex: "12 + 30 = 42.", hint: "Punkt vor Strich – beide Multiplikationen zuerst." },
+      { q: "Welche Aufgabe nutzt das Kommutativgesetz?", opt: ["7+(3+5)=(7+3)+5", "7+5=5+7", "5·(2+3)=5·2+5·3", "(2+3)·4=2·4+3·4"], ok: 1, d: 3, ex: "Vertauschen der Reihenfolge ist kommutativ.", hint: "Reihenfolge tauschen." },
+      { q: "Welche Rechnung darf man NICHT vertauschen?", opt: ["8 + 3", "8 · 3", "8 − 3", "3 + 8"], ok: 2, d: 3, ex: "Subtraktion ist NICHT kommutativ: 8−3 ≠ 3−8.", hint: "Minus geht nicht!" }
+    ]
+  },
+  groessen: {
+    name: "Mit Größen umgehen",
+    icon: "📏",
+    questions: [
+      // ★ Leicht
+      { q: "1 m = ? cm", opt: ["10", "100", "1.000", "10.000"], ok: 1, d: 1, ex: "1 m = 100 cm.", hint: "Hundert Zentimeter machen einen Meter." },
+      { q: "1 kg = ? g", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 1, ex: "1 kg = 1.000 g.", hint: "Tausend Gramm machen ein Kilo." },
+      { q: "1 h = ? min", opt: ["10", "30", "60", "100"], ok: 2, d: 1, ex: "1 Stunde = 60 Minuten.", hint: "Eine Uhr hat 60 Striche." },
+      { q: "1 € = ? ct", opt: ["10", "100", "1.000", "0,01"], ok: 1, d: 1, ex: "1 Euro = 100 Cent.", hint: "Wie viele Cent für 1 Euro?" },
+      { q: "1 km = ? m", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 1, ex: "1 km = 1.000 m.", hint: "Tausend Meter." },
+      { q: "1 t = ? kg", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 1, ex: "1 Tonne = 1.000 kg.", hint: "Tausend Kilo." },
+      { q: "1 Tag = ? h", opt: ["12", "20", "24", "60"], ok: 2, d: 1, ex: "1 Tag = 24 Stunden.", hint: "Tag und Nacht zusammen." },
+      { q: "1 min = ? s", opt: ["10", "30", "60", "100"], ok: 2, d: 1, ex: "1 Minute = 60 Sekunden.", hint: "Wie eine Stunde nur kleiner." },
+      // ★★ Mittel
+      { q: "3 m = ? cm", opt: ["30", "300", "3.000", "0,3"], ok: 1, d: 2, ex: "3 · 100 = 300 cm.", hint: "Mit 100 mal nehmen." },
+      { q: "2 kg = ? g", opt: ["20", "200", "2.000", "20.000"], ok: 2, d: 2, ex: "2 · 1.000 = 2.000 g.", hint: "Mit 1.000 mal nehmen." },
+      { q: "2 h = ? min", opt: ["20", "100", "120", "200"], ok: 2, d: 2, ex: "2 · 60 = 120 min.", hint: "Achtung: 60, nicht 100!" },
+      { q: "4,75 € = ? ct", opt: ["47", "475", "4.075", "4.750"], ok: 1, d: 2, ex: "4 € = 400 ct, plus 75 ct = 475 ct.", hint: "1 € = 100 ct." },
+      { q: "1.500 g = ? kg", opt: ["1,5", "15", "150", "0,15"], ok: 0, d: 2, ex: "1.500 : 1.000 = 1,5 kg.", hint: "Durch 1.000 teilen." },
+      { q: "90 min sind wie viele Stunden?", opt: ["0,9 h", "1,5 h", "1,3 h", "9 h"], ok: 1, d: 2, ex: "60 min = 1 h, 30 min = 0,5 h → 1,5 h.", hint: "Eine Stunde plus eine halbe." },
+      { q: "250 cm = ? m", opt: ["0,25", "2,5", "25", "250"], ok: 1, d: 2, ex: "250 : 100 = 2,5 m.", hint: "Durch 100 teilen." },
+      { q: "Was ist 2 m + 30 cm in cm?", opt: ["32", "203", "230", "2.030"], ok: 2, d: 2, ex: "2 m = 200 cm. 200 + 30 = 230 cm.", hint: "Erst in gleiche Einheit umrechnen." },
+      { q: "1 h 30 min als Dezimalzahl in Stunden?", opt: ["1,3 h", "1,5 h", "1,30 h", "1,15 h"], ok: 1, d: 2, ex: "30 min = ½ h = 0,5 h → 1,5 h.", hint: "30 min ist eine halbe Stunde." },
+      { q: "Wie viele Tage hat eine Woche?", opt: ["5", "6", "7", "10"], ok: 2, d: 2, ex: "7 Tage = 1 Woche.", hint: "Von Montag bis Sonntag." },
+      // ★★★ Schwer
+      { q: "3 h 15 min = ? min", opt: ["180", "195", "215", "315"], ok: 1, d: 3, ex: "3 · 60 + 15 = 180 + 15 = 195 min.", hint: "Erst die Stunden in Minuten." },
+      { q: "5 km − 1.500 m = ? m", opt: ["3.500", "3.485", "350", "4.000"], ok: 0, d: 3, ex: "5 km = 5.000 m. 5.000 − 1.500 = 3.500 m.", hint: "5 km in Metern umrechnen." },
+      { q: "2 t 500 kg = ? kg", opt: ["250", "2.005", "2.500", "25.000"], ok: 2, d: 3, ex: "2 t = 2.000 kg. 2.000 + 500 = 2.500 kg.", hint: "Tonnen in Kilo umrechnen." },
+      { q: "7,50 € + 75 ct = ? €", opt: ["7,75", "8,25", "8,50", "82,50"], ok: 1, d: 3, ex: "75 ct = 0,75 €. 7,50 + 0,75 = 8,25 €.", hint: "Cent in Euro umrechnen." },
+      { q: "Wie viele Sekunden hat 1 Stunde?", opt: ["60", "360", "3.600", "6.000"], ok: 2, d: 3, ex: "1 h = 60 min · 60 s = 3.600 s.", hint: "60 mal 60." },
+      { q: "3 kg 750 g + 1 kg 250 g = ? kg", opt: ["4", "5", "4,5", "5,5"], ok: 1, d: 3, ex: "750 g + 250 g = 1.000 g = 1 kg. 3 + 1 + 1 = 5 kg.", hint: "Erst die Gramm zusammenrechnen." },
+      { q: "Wie viele cm sind 1,75 m?", opt: ["17,5", "175", "1.750", "0,175"], ok: 1, d: 3, ex: "1,75 · 100 = 175 cm.", hint: "Mit 100 multiplizieren." }
+    ]
+  },
+  ganze: {
+    name: "Ganze Zahlen",
+    icon: "➖",
+    questions: [
+      // ★ Leicht
+      { q: "Welche Zahl ist negativ?", opt: ["5", "−3", "0", "8"], ok: 1, d: 1, ex: "−3 hat ein Minuszeichen.", hint: "Mit Minuszeichen davor." },
+      { q: "|5| = ?", opt: ["−5", "5", "0", "10"], ok: 1, d: 1, ex: "Der Betrag von 5 ist 5.", hint: "Betrag ist der Abstand zur Null." },
+      { q: "|−7| = ?", opt: ["−7", "7", "0", "14"], ok: 1, d: 1, ex: "Der Betrag ist immer positiv: 7.", hint: "Betrag ohne Vorzeichen." },
+      { q: "Welche Zahl ist größer: −3 oder 3?", opt: ["−3", "3", "Beide gleich"], ok: 1, d: 1, ex: "3 ist positiv und liegt rechts von −3.", hint: "Positiv ist immer größer als negativ." },
+      { q: "Was ist die Gegenzahl von 7?", opt: ["7", "−7", "0", "14"], ok: 1, d: 1, ex: "Gegenzahl: gleicher Betrag, anderes Vorzeichen.", hint: "Vorzeichen umdrehen." },
+      { q: "Was ist die Gegenzahl von −5?", opt: ["−5", "5", "0", "−10"], ok: 1, d: 1, ex: "Gegenzahl von −5 ist +5.", hint: "Minus zu Plus." },
+      { q: "Ist die 0 positiv oder negativ?", opt: ["positiv", "negativ", "weder noch", "beides"], ok: 2, d: 1, ex: "Die Null ist weder positiv noch negativ.", hint: "Genau in der Mitte." },
+      { q: "Welche Zahl ist die kleinste?", opt: ["−1", "−5", "0", "2"], ok: 1, d: 1, ex: "Je weiter links auf der Zahlengeraden, desto kleiner. −5 ist am weitesten links.", hint: "Links auf der Zahlengeraden." },
+      // ★★ Mittel
+      { q: "(−3) + (−5) = ?", opt: ["+8", "−8", "−2", "+2"], ok: 1, d: 2, ex: "Gleiche Vorzeichen: Beträge addieren, − bleibt. = −8.", hint: "Beträge addieren, Vorzeichen behalten." },
+      { q: "(+5) + (−3) = ?", opt: ["+2", "−2", "+8", "−8"], ok: 0, d: 2, ex: "Verschiedene Vorzeichen: 5−3=2. 5 hat größeren Betrag → positiv → +2.", hint: "Größeren Betrag minus kleineren." },
+      { q: "(−7) + 4 = ?", opt: ["+3", "−3", "+11", "−11"], ok: 1, d: 2, ex: "7−4=3. 7 ist größer → Vorzeichen − → −3.", hint: "Auf der Zahlengeraden 4 nach rechts." },
+      { q: "8 − 12 = ?", opt: ["+4", "−4", "+20", "−20"], ok: 1, d: 2, ex: "8 − 12 = 8 + (−12) = −4.", hint: "Mehr abgezogen als da war." },
+      { q: "5 − (−3) = ?", opt: ["2", "−2", "8", "−8"], ok: 2, d: 2, ex: "Minus und Minus = Plus: 5 + 3 = 8.", hint: "Minus mal Minus = Plus!" },
+      { q: "−2 − 5 = ?", opt: ["3", "−3", "7", "−7"], ok: 3, d: 2, ex: "−2 + (−5) = −7.", hint: "Beide negativ → Beträge addieren." },
+      { q: "Welche Zahl ist größer: −2 oder −7?", opt: ["−2", "−7", "Beide gleich"], ok: 0, d: 2, ex: "−2 liegt rechts von −7. Also −2 > −7.", hint: "Weiter rechts = größer." },
+      { q: "Welche Zahl ist die größte?", opt: ["−5", "−3", "−8", "−1"], ok: 3, d: 2, ex: "−1 liegt am weitesten rechts → größte negative Zahl.", hint: "Die mit dem kleinsten Betrag." },
+      { q: "(−4) + (+9) = ?", opt: ["+5", "−5", "+13", "−13"], ok: 0, d: 2, ex: "9−4=5. 9 hat größeren Betrag → positiv.", hint: "Wer hat den größeren Betrag?" },
+      { q: "−3 + 3 = ?", opt: ["−6", "0", "+6", "+3"], ok: 1, d: 2, ex: "Gegenzahlen addieren sich zu 0.", hint: "Gegenzahlen." },
+      // ★★★ Schwer
+      { q: "(−15) + 8 − (−3) = ?", opt: ["−4", "+4", "−20", "−10"], ok: 0, d: 3, ex: "−15+8=−7. −7−(−3)=−7+3=−4.", hint: "Schritt für Schritt." },
+      { q: "7 − 10 + (−4) = ?", opt: ["−7", "+1", "−1", "+7"], ok: 0, d: 3, ex: "7−10=−3. −3+(−4)=−7.", hint: "Erstmal 7−10 rechnen." },
+      { q: "Temperatur −8°C steigt um 15°. Wie hoch?", opt: ["+7°", "−7°", "+23°", "−23°"], ok: 0, d: 3, ex: "−8 + 15 = +7°C.", hint: "Auf Zahlengerade 15 nach rechts." },
+      { q: "Konto −50 €, Abhebung 30 €. Neuer Stand?", opt: ["+20 €", "−20 €", "−80 €", "+80 €"], ok: 2, d: 3, ex: "Abhebung = weniger: −50 − 30 = −80 €.", hint: "Abheben zieht ab." },
+      { q: "(−25) − (−10) = ?", opt: ["−35", "−15", "+15", "+35"], ok: 1, d: 3, ex: "−25 − (−10) = −25 + 10 = −15.", hint: "Minus Minus = Plus." },
+      { q: "Höhe −120 m + 80 m = ?", opt: ["−40 m", "+40 m", "−200 m", "+200 m"], ok: 0, d: 3, ex: "Aus 120 unter Null 80 hoch → noch 40 unter Null.", hint: "Auf Zahlengerade hochsteigen." },
+      { q: "0 − (−7) − 4 = ?", opt: ["−11", "−3", "+3", "+11"], ok: 2, d: 3, ex: "0−(−7)=7. 7−4=3.", hint: "Minus Minus zuerst auflösen." }
+    ]
+  },
+  flaechen: {
+    name: "Flächen und Volumen",
+    icon: "📦",
+    questions: [
+      // ★ Leicht
+      { q: "Flächeninhalt Rechteck a=5, b=3?", opt: ["8", "15", "16", "30"], ok: 1, d: 1, ex: "A = a · b = 5 · 3 = 15.", hint: "Länge mal Breite." },
+      { q: "Volumen Würfel mit a=4?", opt: ["12", "16", "48", "64"], ok: 3, d: 1, ex: "V = a · a · a = 4·4·4 = 64.", hint: "Drei Mal die Kantenlänge." },
+      { q: "1 dm³ = ? Liter", opt: ["0,1", "1", "10", "100"], ok: 1, d: 1, ex: "1 dm³ = 1 Liter.", hint: "Ein Würfel mit 1 dm fasst 1 l." },
+      { q: "1 cm³ = ? ml", opt: ["0,1", "1", "10", "100"], ok: 1, d: 1, ex: "1 cm³ = 1 ml.", hint: "Genau gleich!" },
+      { q: "Umfang Quadrat mit a=5?", opt: ["10", "15", "20", "25"], ok: 2, d: 1, ex: "U = 4 · a = 4 · 5 = 20.", hint: "Vier mal die Seitenlänge." },
+      { q: "Flächeninhalt Quadrat mit a=4?", opt: ["8", "12", "16", "24"], ok: 2, d: 1, ex: "A = a · a = 4 · 4 = 16.", hint: "Seitenlänge mal sich selbst." },
+      { q: "Welche Formel ist für den Flächeninhalt eines Rechtecks?", opt: ["a + b", "a · b", "a · a", "2·(a+b)"], ok: 1, d: 1, ex: "A = a · b. (2·(a+b) ist der Umfang.)", hint: "Multiplizieren." },
+      { q: "Welche Formel ist für das Volumen eines Würfels?", opt: ["a · b · c", "a · a · a", "6 · a", "a + a + a"], ok: 1, d: 1, ex: "Würfel: alle Seiten gleich → a · a · a (a³).", hint: "Drei gleiche Seiten." },
+      // ★★ Mittel
+      { q: "1 m² = ? cm²", opt: ["100", "1.000", "10.000", "100.000"], ok: 2, d: 2, ex: "1 m = 100 cm → 100 · 100 = 10.000.", hint: "Beide Seiten umrechnen." },
+      { q: "1 dm² = ? cm²", opt: ["10", "100", "1.000", "10.000"], ok: 1, d: 2, ex: "1 dm = 10 cm → 10 · 10 = 100.", hint: "Zehn mal zehn." },
+      { q: "100 cm² = ? dm²", opt: ["0,1", "1", "10", "100"], ok: 1, d: 2, ex: "100 cm² = 1 dm².", hint: "Umgekehrte Richtung." },
+      { q: "Volumen Quader 5·2·3?", opt: ["10", "15", "30", "60"], ok: 2, d: 2, ex: "V = a·b·c = 5·2·3 = 30.", hint: "Alle drei multiplizieren." },
+      { q: "1 m³ = ? dm³", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 2, ex: "1 m = 10 dm → 10·10·10 = 1.000.", hint: "Drei mal mit 10 multiplizieren." },
+      { q: "1 m³ = ? Liter", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 2, ex: "1 m³ = 1.000 dm³ = 1.000 l.", hint: "1 dm³ = 1 l." },
+      { q: "Umfang Rechteck a=7, b=3?", opt: ["10", "20", "21", "30"], ok: 1, d: 2, ex: "U = 2·(a+b) = 2·(7+3) = 20.", hint: "Zweimal Länge plus zweimal Breite." },
+      { q: "Flächeninhalt Rechteck a=8, b=5?", opt: ["13", "26", "40", "80"], ok: 2, d: 2, ex: "A = a·b = 8·5 = 40.", hint: "Multiplizieren." },
+      { q: "Bei Flächeneinheiten rechnet man immer mit …", opt: ["10", "100", "1.000", "10.000"], ok: 1, d: 2, ex: "Flächen: zwei Dimensionen → 10·10 = 100.", hint: "Zwei Seiten." },
+      { q: "Bei Volumeneinheiten rechnet man immer mit …", opt: ["10", "100", "1.000", "10.000"], ok: 2, d: 2, ex: "Volumen: drei Dimensionen → 10·10·10 = 1.000.", hint: "Drei Seiten." },
+      // ★★★ Schwer
+      { q: "Volumen Würfel mit a = 10 cm?", opt: ["100 cm³", "200 cm³", "1.000 cm³", "10.000 cm³"], ok: 2, d: 3, ex: "V = 10·10·10 = 1.000 cm³ = 1 dm³ = 1 l.", hint: "Drei mal 10." },
+      { q: "Oberfläche Würfel mit a = 5?", opt: ["25", "75", "125", "150"], ok: 3, d: 3, ex: "O = 6·a·a = 6·25 = 150.", hint: "Sechs gleiche Quadrate." },
+      { q: "Oberfläche Quader 4·3·2?", opt: ["24", "26", "52", "104"], ok: 2, d: 3, ex: "O = 2·(4·3+4·2+3·2) = 2·(12+8+6) = 52.", hint: "Drei Flächenpaare." },
+      { q: "1 ha = ? m²", opt: ["100", "1.000", "10.000", "100.000"], ok: 2, d: 3, ex: "1 ha = 100 a = 100 · 100 m² = 10.000 m².", hint: "Hektar = 100 Ar." },
+      { q: "5 km² = ? m²", opt: ["5.000", "50.000", "500.000", "5.000.000"], ok: 3, d: 3, ex: "1 km² = 1.000.000 m² → 5 · 1.000.000 = 5.000.000.", hint: "1 km² ist 1 Million m²." },
+      { q: "Volumen Quader 10·5·2 in dm³?", opt: ["17", "100", "1.000", "10.000"], ok: 1, d: 3, ex: "V = 10·5·2 = 100 dm³ (= 100 l).", hint: "Einfache Multiplikation." },
+      { q: "Wie viele Liter passen in einen Würfel mit 2 dm Kantenlänge?", opt: ["2 l", "4 l", "6 l", "8 l"], ok: 3, d: 3, ex: "V = 2·2·2 = 8 dm³ = 8 l.", hint: "1 dm³ = 1 l." }
+    ]
+  }
+};
+
+// ============================================================
+// STATE & PERSISTENZ
+// ============================================================
+const STORAGE_KEY = 'mathequiz_pro_v1';
+let stats = loadStats();
+let state = null;
+
+function defaultStats() {
+  const s = { totalAnswered: 0, totalCorrect: 0, sessionsPlayed: 0, byTopic: {}, wrongQuestions: [], lastSeen: null };
+  for (const t in TOPICS) s.byTopic[t] = { answered: 0, correct: 0, stars: 0 };
+  return s;
+}
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultStats();
+    const parsed = JSON.parse(raw);
+    // Migrieren: fehlende Themen ergänzen
+    const def = defaultStats();
+    parsed.byTopic = Object.assign({}, def.byTopic, parsed.byTopic || {});
+    if (!Array.isArray(parsed.wrongQuestions)) parsed.wrongQuestions = [];
+    return Object.assign(def, parsed);
+  } catch (e) { return defaultStats(); }
+}
+function saveStats() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stats)); } catch (e) {}
+}
+function resetAllData() {
+  if (!confirm('Möchtest du wirklich deine gesamte Statistik löschen?')) return;
+  stats = defaultStats();
+  saveStats();
+  updateHeaderStats();
+  renderStart();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function questionId(topicKey, idx) { return topicKey + '#' + idx; }
+function parseQid(qid) { const [t, i] = qid.split('#'); return { topic: t, idx: parseInt(i) }; }
+
+function getStarsForTopic(topicKey) {
+  const t = stats.byTopic[topicKey];
+  if (!t || t.answered < 5) return 0;
+  const pct = t.correct / t.answered;
+  if (pct >= 0.9) return 3;
+  if (pct >= 0.75) return 2;
+  if (pct >= 0.5) return 1;
+  return 0;
+}
+
+function topicProgress(topicKey) {
+  const total = TOPICS[topicKey].questions.length;
+  const t = stats.byTopic[topicKey];
+  if (!t) return 0;
+  return Math.min(100, Math.round((t.answered / total) * 100));
+}
+
+function updateHeaderStats() {
+  const el = document.getElementById('headerStats');
+  const pct = stats.totalAnswered > 0 ? Math.round(stats.totalCorrect / stats.totalAnswered * 100) : 0;
+  el.innerHTML = `
+    <div><strong>${stats.totalCorrect}</strong> / ${stats.totalAnswered} richtig</div>
+    <div>${pct}% &middot; ${stats.sessionsPlayed} Runden</div>
+  `;
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+const screen = document.getElementById('screen');
+
+function renderStart() {
+  updateHeaderStats();
+  screen.innerHTML = `
+    <h2>Wie möchtest du lernen?</h2>
+    <div class="modes">
+      <button class="mode-btn" id="modeUebung">
+        <div class="mode-icon">📚</div>
+        <div class="mode-text">
+          <div class="mode-name">Übung mit Erklärungen</div>
+          <div class="mode-desc">Aufgaben mit Tipp und ausführlicher Erklärung. Ideal zum Lernen.</div>
+        </div>
+      </button>
+      <button class="mode-btn" id="modeTest">
+        <div class="mode-icon">📝</div>
+        <div class="mode-text">
+          <div class="mode-name">Test-Modus</div>
+          <div class="mode-desc">Wie eine Klassenarbeit – kein Tipp, kurze Auswertung am Schluss.</div>
+        </div>
+      </button>
+      <button class="mode-btn" id="modeRepeat">
+        <div class="mode-icon">🔁</div>
+        <div class="mode-text">
+          <div class="mode-name">Schwachstellen-Training</div>
+          <div class="mode-desc">Wiederhole Aufgaben, bei denen du Fehler gemacht hast (${stats.wrongQuestions.length} offen).</div>
+        </div>
+      </button>
+      <button class="mode-btn" id="modeStats">
+        <div class="mode-icon">📊</div>
+        <div class="mode-text">
+          <div class="mode-name">Statistik ansehen</div>
+          <div class="mode-desc">Wo stehst du? Welche Themen brauchen noch Übung?</div>
+        </div>
+      </button>
+    </div>
+    <p style="color:#6b7a93;font-size:13px;line-height:1.5;margin-top:12px;">
+      <strong>Tipp:</strong> Im Lernmodus bekommst du nach jeder Frage eine Erklärung – auch bei richtigen Antworten.
+      Mit drei Sterne pro Thema bist du klassenarbeitsfit!
+    </p>
+  `;
+  document.getElementById('modeUebung').onclick = () => renderTopicSelect('uebung');
+  document.getElementById('modeTest').onclick = () => renderTopicSelect('test');
+  document.getElementById('modeRepeat').onclick = () => {
+    if (stats.wrongQuestions.length === 0) {
+      alert('Du hast aktuell keine offenen Fehler – super! Übe ruhig weiter in einem anderen Modus.');
+      return;
+    }
+    startWrongRepeat();
+  };
+  document.getElementById('modeStats').onclick = renderStats;
+}
+
+function renderTopicSelect(mode) {
+  const cards = Object.entries(TOPICS).map(([key, t]) => {
+    const stars = getStarsForTopic(key);
+    const prog = topicProgress(key);
+    const total = t.questions.length;
+    const tStats = stats.byTopic[key] || { answered: 0 };
+    const starsHTML = '★★★'.split('').map((_, i) =>
+      `<span class="${i < stars ? 'star-on' : 'star-off'}">★</span>`
+    ).join('');
+    return `<button class="card" data-key="${key}">
+      <span class="pct ${prog === 0 ? 'zero' : ''}">${prog}%</span>
+      <div><span class="icon">${t.icon}</span><span class="name">${t.name}</span></div>
+      <div class="sub">${total} Aufgaben · ${tStats.answered} beantwortet</div>
+      <div class="stars-row">${starsHTML} <span style="color:#6b7a93;font-size:11px;margin-left:4px;">Stand</span></div>
+    </button>`;
+  }).join('');
+
+  const modeName = mode === 'uebung' ? 'Übung' : 'Test';
+
+  screen.innerHTML = `
+    <div class="nav-row">
+      <div class="breadcrumb"><span onclick="renderStart()">← Modus</span> · ${modeName}</div>
+    </div>
+    <h2>Wähle dein Thema</h2>
+    <div class="grid">
+      ${cards}
+      <button class="card mix" data-key="__mix__">
+        <div><span class="icon">🎲</span><span class="name">Alle Themen gemischt</span></div>
+        <div class="sub">Bunt durch alle Themenbereiche</div>
+      </button>
+    </div>
+    <h3>Optionen</h3>
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Schwierigkeit</label>
+        <div class="diff-pills" id="diffPills">
+          <button data-d="0" class="active">★+★★+★★★</button>
+          <button data-d="1">★ leicht</button>
+          <button data-d="2">★★ mittel</button>
+          <button data-d="3">★★★ schwer</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Anzahl Fragen</label>
+        <select id="countSelect">
+          <option value="10">10 Fragen</option>
+          <option value="20" selected>20 Fragen</option>
+          <option value="0">alle (max. 25)</option>
+        </select>
+      </div>
+    </div>
+  `;
+
+  // Difficulty pills
+  let selectedDiff = 0;
+  document.querySelectorAll('#diffPills button').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('#diffPills button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectedDiff = parseInt(b.dataset.d);
+    };
+  });
+
+  document.querySelectorAll('.card').forEach(c => {
+    c.onclick = () => {
+      const count = parseInt(document.getElementById('countSelect').value);
+      startQuiz(c.dataset.key, mode, selectedDiff, count);
+    };
+  });
+}
+
+function startQuiz(topicKey, mode, diffFilter, countWanted) {
+  let pool = [];
+  if (topicKey === '__mix__') {
+    Object.entries(TOPICS).forEach(([k, t]) => {
+      t.questions.forEach((q, i) => pool.push({ q, _topic: k, _idx: i }));
+    });
+  } else {
+    TOPICS[topicKey].questions.forEach((q, i) => pool.push({ q, _topic: topicKey, _idx: i }));
+  }
+  if (diffFilter > 0) pool = pool.filter(item => item.q.d === diffFilter);
+  pool = shuffle(pool);
+  if (countWanted > 0) pool = pool.slice(0, countWanted);
+
+  if (pool.length === 0) {
+    alert('Keine Fragen mit diesem Filter gefunden. Versuche eine andere Auswahl.');
+    return;
+  }
+
+  state = {
+    mode: mode, // 'uebung' | 'test' | 'repeat'
+    topicKey: topicKey,
+    questions: pool,
+    current: 0,
+    correct: 0,
+    wrong: 0,
+    streak: 0,
+    bestStreak: 0,
+    wrongDetails: [],
+    answered: false
+  };
+  renderQuestion();
+}
+
+function startWrongRepeat() {
+  const pool = [];
+  for (const qid of stats.wrongQuestions) {
+    const { topic, idx } = parseQid(qid);
+    if (TOPICS[topic] && TOPICS[topic].questions[idx]) {
+      pool.push({ q: TOPICS[topic].questions[idx], _topic: topic, _idx: idx });
+    }
+  }
+  state = {
+    mode: 'repeat',
+    topicKey: '__repeat__',
+    questions: shuffle(pool),
+    current: 0, correct: 0, wrong: 0, streak: 0, bestStreak: 0, wrongDetails: [], answered: false
+  };
+  renderQuestion();
+}
+
+function renderQuestion() {
+  state.answered = false;
+  const item = state.questions[state.current];
+  const q = item.q;
+  const total = state.questions.length;
+  const num = state.current + 1;
+  const progress = Math.round((state.current / total) * 100);
+  const topicName = TOPICS[item._topic].name;
+  const diffStars = '★'.repeat(q.d);
+
+  // Optionen mischen
+  const indexed = q.opt.map((opt, i) => ({ opt, i }));
+  const shuffled = shuffle(indexed);
+  const correctShuffledIdx = shuffled.findIndex(o => o.i === q.ok);
+
+  const modeName = state.mode === 'uebung' ? 'Übung' : (state.mode === 'test' ? 'Test' : 'Wiederholung');
+  const streakBadge = state.streak >= 3 ? `<span class="streak-badge">🔥 ${state.streak}</span>` : '';
+
+  screen.innerHTML = `
+    <div class="nav-row">
+      <div class="breadcrumb"><span onclick="renderStart()">← Hauptmenü</span> · ${modeName}</div>
+      <button class="subtle" onclick="if(confirm('Quiz wirklich abbrechen?')) renderStart();">Abbrechen</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="meta-row">
+      <span>Frage ${num} von ${total}</span>
+      <span class="score">✓ ${state.correct} · ✗ ${state.wrong}${streakBadge}</span>
+    </div>
+    <span class="topic-label">${topicName}</span>
+    <span class="diff-label">${diffStars} ${q.d===1?'leicht':q.d===2?'mittel':'schwer'}</span>
+    <div class="question">${q.q}</div>
+    <div class="options">
+      ${shuffled.map((o, idx) =>
+        `<button class="option" data-idx="${idx}">${o.opt}</button>`
+      ).join('')}
+    </div>
+    ${state.mode === 'uebung' ? `
+      <button class="subtle" id="hintBtn" style="margin-top:8px;">💡 Tipp anzeigen</button>
+      <div class="hint-box hidden" id="hintBox">${q.hint}</div>
+    ` : ''}
+    <div id="feedback"></div>
+    <div class="btn-row hidden" id="btnRow">
+      <button class="primary" id="nextBtn">${num < total ? 'Nächste Frage →' : 'Auswertung 🏁'}</button>
+    </div>
+  `;
+
+  document.querySelectorAll('.option').forEach(btn => {
+    btn.onclick = () => {
+      if (state.answered) return;
+      handleAnswer(parseInt(btn.dataset.idx), correctShuffledIdx, q, item);
+    };
+  });
+
+  if (state.mode === 'uebung') {
+    document.getElementById('hintBtn').onclick = () => {
+      document.getElementById('hintBox').classList.remove('hidden');
+      document.getElementById('hintBtn').classList.add('hidden');
+    };
+  }
+}
+
+function handleAnswer(chosen, correctIdx, q, item) {
+  state.answered = true;
+  const options = document.querySelectorAll('.option');
+  options.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correctIdx) o.classList.add('correct');
+    else if (i === chosen) o.classList.add('wrong');
+    else o.classList.add('dimmed');
+  });
+
+  const isRight = chosen === correctIdx;
+  const qid = questionId(item._topic, item._idx);
+
+  if (isRight) {
+    state.correct++;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    // Falls in der Fehlerliste, entfernen
+    stats.wrongQuestions = stats.wrongQuestions.filter(x => x !== qid);
+  } else {
+    state.wrong++;
+    state.streak = 0;
+    state.wrongDetails.push({ q: q.q, correct: q.opt[q.ok], ex: q.ex });
+    if (!stats.wrongQuestions.includes(qid)) stats.wrongQuestions.push(qid);
+  }
+
+  // Stats updaten
+  stats.totalAnswered++;
+  if (isRight) stats.totalCorrect++;
+  if (!stats.byTopic[item._topic]) stats.byTopic[item._topic] = { answered: 0, correct: 0, stars: 0 };
+  stats.byTopic[item._topic].answered++;
+  if (isRight) stats.byTopic[item._topic].correct++;
+  saveStats();
+  updateHeaderStats();
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  if (state.mode === 'uebung' || (state.mode === 'repeat')) {
+    fb.innerHTML = `
+      <div class="feedback ${isRight ? 'correct' : 'wrong'}">
+        <strong>${isRight ? '✓ Richtig!' : '✗ Nicht ganz.'}</strong>
+        <div class="explain">${q.ex}</div>
+      </div>
+    `;
+  } else {
+    // Test-Modus: nur kurze Rückmeldung, keine Erklärung
+    fb.innerHTML = `
+      <div class="feedback ${isRight ? 'correct' : 'wrong'}">
+        <strong>${isRight ? '✓ Richtig' : '✗ Falsch'}</strong>
+      </div>
+    `;
+  }
+  document.getElementById('btnRow').classList.remove('hidden');
+  document.getElementById('nextBtn').onclick = () => {
+    state.current++;
+    if (state.current < state.questions.length) renderQuestion();
+    else renderEnd();
+  };
+}
+
+function renderEnd() {
+  const total = state.questions.length;
+  const pct = Math.round(state.correct / total * 100);
+  stats.sessionsPlayed++;
+  saveStats();
+  updateHeaderStats();
+
+  let stars, msg;
+  if (pct >= 90) { stars = '⭐⭐⭐⭐⭐'; msg = 'Super! Du bist sehr gut vorbereitet.'; }
+  else if (pct >= 75) { stars = '⭐⭐⭐⭐'; msg = 'Sehr gut! Wiederhole die wenigen Fehler im Wissenskasten.'; }
+  else if (pct >= 50) { stars = '⭐⭐⭐'; msg = 'Solider Stand. Trainiere die Schwachstellen noch ein paar Mal.'; }
+  else if (pct >= 30) { stars = '⭐⭐'; msg = 'Auf gutem Weg. Lies die Erklärungen ruhig nochmal in Ruhe.'; }
+  else { stars = '⭐'; msg = 'Keine Sorge – Mathe braucht Wiederholung. Übe Schritt für Schritt weiter.'; }
+
+  const wrongHTML = state.wrongDetails.length > 0 ? `
+    <div class="wrong-list">
+      <h3>Diese Aufgaben solltest du wiederholen:</h3>
+      <ul>
+        ${state.wrongDetails.map(w => `<li><strong>${w.q}</strong><br>→ ${w.correct} (${w.ex})</li>`).join('')}
+      </ul>
+    </div>
+  ` : '';
+
+  screen.innerHTML = `
+    <div class="end">
+      <h2>Fertig! 🏁</h2>
+      <div class="score-big">${state.correct} / ${total}</div>
+      <div class="pct-text">(${pct} % richtig · Beste Serie: ${state.bestStreak})</div>
+      <div class="stars">${stars}</div>
+      <p class="msg">${msg}</p>
+      ${wrongHTML}
+      <div class="btn-row" style="justify-content:center;">
+        <button class="primary" onclick="renderStart()">Hauptmenü</button>
+        ${state.wrongDetails.length > 0 ? '<button class="secondary" onclick="startWrongRepeat()">Fehler nochmal üben</button>' : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderStats() {
+  const totalQ = Object.values(TOPICS).reduce((s, t) => s + t.questions.length, 0);
+  const overallPct = stats.totalAnswered > 0 ? Math.round(stats.totalCorrect / stats.totalAnswered * 100) : 0;
+  const totalStars = Object.keys(TOPICS).reduce((s, k) => s + getStarsForTopic(k), 0);
+
+  const rows = Object.entries(TOPICS).map(([key, t]) => {
+    const ts = stats.byTopic[key] || { answered: 0, correct: 0 };
+    const pct = ts.answered > 0 ? Math.round(ts.correct / ts.answered * 100) : 0;
+    const stars = getStarsForTopic(key);
+    const starsHTML = '★★★'.split('').map((_, i) =>
+      `<span style="color:${i < stars ? '#f5a623' : '#dde3ec'}">★</span>`
+    ).join('');
+    return `<div class="topic-stat-row">
+      <div><span style="margin-right:6px">${t.icon}</span>${t.name}</div>
+      <div>${ts.answered} / ${t.questions.length}</div>
+      <div>${pct}%</div>
+      <div>${starsHTML}</div>
+    </div>`;
+  }).join('');
+
+  screen.innerHTML = `
+    <div class="nav-row">
+      <div class="breadcrumb"><span onclick="renderStart()">← Hauptmenü</span> · Statistik</div>
+    </div>
+    <h2>Dein Lernfortschritt</h2>
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <span class="big">${stats.totalAnswered}</span>
+        <div class="small">Fragen bearbeitet</div>
+      </div>
+      <div class="stat-tile">
+        <span class="big">${overallPct}%</span>
+        <div class="small">richtig insgesamt</div>
+      </div>
+      <div class="stat-tile">
+        <span class="big">${stats.sessionsPlayed}</span>
+        <div class="small">Quiz-Runden</div>
+      </div>
+      <div class="stat-tile">
+        <span class="big">${totalStars} / 18</span>
+        <div class="small">Sterne gesammelt</div>
+      </div>
+    </div>
+    <div class="topic-stats">
+      <div class="topic-stat-row head">
+        <div>Thema</div>
+        <div>Bearbeitet</div>
+        <div>Quote</div>
+        <div>Sterne</div>
+      </div>
+      ${rows}
+    </div>
+    <p style="margin-top:16px;color:#6b7a93;font-size:13px;line-height:1.5;">
+      <strong>Sterne-System:</strong> 3 Sterne ab 90% richtig (bei min. 5 Fragen pro Thema),
+      2 Sterne ab 75%, 1 Stern ab 50%. <br>
+      <strong>Offene Fehler zum Wiederholen:</strong> ${stats.wrongQuestions.length}
+    </p>
+    <div class="btn-row" style="justify-content:center;">
+      <button class="primary" onclick="renderStart()">Zurück zum Menü</button>
+    </div>
+  `;
+}
+
+window.renderStart = renderStart;
+window.startWrongRepeat = startWrongRepeat;
+window.resetAllData = resetAllData;
+renderStart();
+</script>
+</body>
+</html>
