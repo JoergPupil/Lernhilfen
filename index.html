@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Mathe-Lernhilfen · Klasse 5</title>
+
+<!-- iOS / Add to Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mathe 5">
+<meta name="theme-color" content="#2a5b9c">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Inline App-Icon (Drache + Buchstabe M) als SVG -->
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232a5b9c'/><text x='50' y='68' font-size='56' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-weight='bold'>M</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%232a5b9c'/><text x='90' y='122' font-size='100' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-weight='bold'>M</text></svg>">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, #2a5b9c 0%, #1f4880 50%, #143155 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+    color: #fff;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .container {
+    max-width: 540px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 4px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  header { text-align: center; padding: 16px 0 24px; }
+  .logo {
+    display: inline-block;
+    background: #fff;
+    color: #2a5b9c;
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    line-height: 72px;
+    font-size: 40px;
+    font-weight: 800;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 14px;
+    opacity: 0.85;
+    line-height: 1.4;
+  }
+  .intro {
+    background: rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .card {
+    display: block;
+    background: #fff;
+    color: #1a2540;
+    padding: 20px 22px;
+    border-radius: 16px;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .card .head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .card .icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .card.quiz .icon { background: linear-gradient(135deg, #66bb6a, #43a047); color: #fff; }
+  .card.escape .icon { background: linear-gradient(135deg, #d4a050, #a87830); color: #fff; }
+  .card .title {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .card .meta {
+    font-size: 12px;
+    color: #6b7a93;
+    font-weight: 600;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .card .desc {
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .card .badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #e8eef7;
+    color: #2a5b9c;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+  .card .arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    color: #cfd9e8;
+  }
+
+  .install-hint {
+    background: rgba(255,255,255,0.1);
+    border: 1px dashed rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .install-hint strong { display: block; margin-bottom: 6px; font-size: 14px; }
+  .install-hint .step {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin: 2px 4px;
+    font-size: 12px;
+  }
+  .install-hint.standalone-hidden { display: none; }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    opacity: 0.6;
+    padding: 16px 0 12px;
+    line-height: 1.5;
+  }
+
+  /* Wenn die App als PWA / "vom Home-Bildschirm" geöffnet ist, Tipp verbergen */
+  @media all and (display-mode: standalone) {
+    .install-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">M</div>
+    <h1>Mathe Klasse 5</h1>
+    <p class="subtitle">Lernhilfen · Gymnasium · Lambacher Schweizer</p>
+  </header>
+
+  <div class="intro">
+    Übe für die Klassenarbeit – mit Quiz oder als Abenteuer.<br>
+    Dein Fortschritt wird automatisch gespeichert.
+  </div>
+
+  <div class="cards">
+    <a href="Mathe_Quiz_PRO_Klasse5.html" class="card quiz">
+      <span class="badge">150 Aufgaben</span>
+      <div class="head">
+        <div class="icon">📚</div>
+        <div>
+          <div class="title">Mathe-Quiz</div>
+          <div class="meta">3 Schwierigkeitsstufen · 6 Themen</div>
+        </div>
+      </div>
+      <div class="desc">
+        Übung mit Erklärungen, Test-Modus und Schwachstellen-Training.
+        Sammle Sterne und behalte den Überblick über deinen Fortschritt.
+      </div>
+      <span class="arrow">›</span>
+    </a>
+
+    <a href="Mathe_Escape_PRO_Klasse5.html" class="card escape">
+      <span class="badge">12 Räume</span>
+      <div class="head">
+        <div class="icon">🐉</div>
+        <div>
+          <div class="title">Mathe-Escape</div>
+          <div class="meta">Abenteuer · 36 Rätsel · Inventar</div>
+        </div>
+      </div>
+      <div class="desc">
+        Befreie Drachin Mathilda aus der Burg von Numerix. Sammle Münzen,
+        Schlüssel und Edelsteine – Speicherstand bleibt erhalten.
+      </div>
+      <span class="arrow">›</span>
+    </a>
+  </div>
+
+  <div class="install-hint" id="installHint">
+    <strong>💡 Auf dem iPhone: Wie eine App nutzen</strong>
+    Tippe unten auf das Teilen-Symbol
+    <span class="step">↑</span>
+    und wähle
+    <span class="step">„Zum Home-Bildschirm"</span>.
+    Dann erscheint hier ein App-Icon, das die Seite im Vollbild öffnet.
+  </div>
+
+  <footer>
+    Erstellt für die Klassenarbeit 5. Klasse · Gymnasium Baden-Württemberg<br>
+    Inhalte orientiert an „Lambacher Schweizer – Mathematik für Gymnasien 5" (Klett)
+  </footer>
+</div>
+</body>
+</html>
